@@ -80,4 +80,20 @@ public class RestTemplateHandler {
     private ResponseEntity<StoreResponse> fallBackGetStoreByStoreId(Throwable throwable) {
         return ResponseEntity.ok(StoreResponse.builder().build());
     }
+
+    @CircuitBreaker(
+            name = "isAuthenticated",
+            fallbackMethod = "fallBackIsAuthenticated"
+    )
+    public ResponseEntity<Boolean> isAuthenticated() {
+        return restTemplate.getForEntity(
+                URI.create("https://localhost:8765/is-authenticated"),
+                Boolean.class
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private ResponseEntity<Boolean> fallBackIsAuthenticated(Throwable throwable) {
+        return ResponseEntity.ok(false);
+    }
 }

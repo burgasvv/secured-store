@@ -1,5 +1,7 @@
 package org.burgas.orderservice.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.service.TabService;
@@ -14,6 +16,11 @@ import java.util.List;
 public class TabController {
 
     private final TabService tabService;
+
+    @GetMapping("/tab/unauthorized")
+    public ResponseEntity<TabResponse> getUnauthorizedAccountTab(HttpServletRequest request) {
+        return ResponseEntity.ok(tabService.findUnauthorizedAccountTab(request));
+    }
 
     @PostMapping("/close-tab")
     public ResponseEntity<String> closeTab(@RequestParam Long tabId) {

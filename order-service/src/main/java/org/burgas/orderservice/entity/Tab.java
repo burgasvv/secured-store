@@ -23,11 +23,7 @@ public class Tab {
     @Id
     @GeneratedValue
     private Long id;
-
-    @Column(nullable = false)
     private Long storeId;
-
-    @Column(nullable = false)
     private Long identityId;
 
     @Column(nullable = false)
@@ -46,6 +42,7 @@ public class Tab {
         purchase.setTab(null);
     }
 
+    private String unauthorizedCookieValue;
     private LocalDateTime openDate;
     private LocalDateTime closeDate;
 }

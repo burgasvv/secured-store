@@ -20,6 +20,7 @@ public class TabResponse {
     private Boolean isOpen;
     private Integer totalPrice;
     private List<PurchaseResponse>purchaseResponses;
+    private String unauthorizedCookieValue;
     private LocalDateTime openDate;
     private LocalDateTime closeDate;
 }

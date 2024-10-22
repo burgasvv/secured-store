@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(
                         exchanges -> exchanges
-                                .pathMatchers("/login","/logout",
+                                .pathMatchers("/is-authenticated","/tabs/tab/unauthorized","/purchases/make-unauthorized-account-purchase",
                                         "/stores", "/stores/{store-id}", "/positions", "/positions/{position-id}",
                                         "/products", "/products/{product-id}", "/product-types",
                                         "/product-types/{productType-id}", "/identities/create"
@@ -39,7 +39,9 @@ public class SecurityConfig {
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )
                                 .hasAnyAuthority("USER", "ADMIN")
-                );
+                )
+                .formLogin(Customizer.withDefaults())
+                .logout(Customizer.withDefaults());
 
         return http.build();
     }

@@ -29,6 +29,17 @@ public class TabMapper {
                 .build();
     }
 
+    public Tab toNewUnauthorizedAccountTab(PurchaseRequest purchaseRequest, String cookieValue) {
+        return Tab.builder()
+                .isOpen(true)
+                .unauthorizedCookieValue(cookieValue)
+                .storeId(purchaseRequest.getStoreId())
+                .openDate(LocalDateTime.now())
+                .purchases(new ArrayList<>())
+                .totalPrice(0)
+                .build();
+    }
+
     public TabResponse toTabResponse(Tab tab) {
 
         return TabResponse.builder()
@@ -37,6 +48,7 @@ public class TabMapper {
                 .closeDate(tab.getCloseDate())
                 .openDate(tab.getOpenDate())
                 .totalPrice(tab.getTotalPrice())
+                .unauthorizedCookieValue(tab.getUnauthorizedCookieValue())
                 .identityResponse(
                         restTemplateHandler.getIdentityByTabId(tab.getId()).getBody()
                 )

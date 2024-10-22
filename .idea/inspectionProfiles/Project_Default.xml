@@ -6,6 +6,12 @@
         <set>
           <option value="csrf" />
           <option value="_csrf" />
+          <option value="Priority" />
+          <option value="Sec-Fetch-Dest" />
+          <option value="Sec-Fetch-Mode" />
+          <option value="Sec-Fetch-Site" />
+          <option value="Upgrade-Insecure-Requests" />
+          <option value="X-XSRF-TOKEN" />
         </set>
       </option>
     </inspection_tool>

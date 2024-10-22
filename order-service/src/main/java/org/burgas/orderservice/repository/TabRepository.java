@@ -12,7 +12,11 @@ public interface TabRepository extends JpaRepository<Tab, Long> {
 
     Optional<Tab> findTabByIdentityIdAndIsOpenIsTrue(Long identityId);
 
+    Optional<Tab> findTabByUnauthorizedCookieValueAndIsOpenIsTrue(String unauthorizedCookieValue);
+
     Optional<Tab> findTabByIdentityIdAndId(Long identityId, Long tabId);
+
+    Optional<Tab> findTabByUnauthorizedCookieValue(String unauthorizedCookieValue);
 
     List<Tab> findTabsByIdentityId(Long identityId);
 }
