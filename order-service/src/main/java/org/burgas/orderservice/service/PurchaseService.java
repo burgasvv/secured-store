@@ -1,7 +1,6 @@
 package org.burgas.orderservice.service;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.ProductResponse;
@@ -17,10 +16,6 @@ import org.burgas.orderservice.repository.TabRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
@@ -44,28 +39,17 @@ public class PurchaseService {
             rollbackFor = RuntimeException.class
     )
     public String makeUnauthorizedAccountPurchase(
-            PurchaseRequest purchaseRequest, HttpServletRequest request, HttpServletResponse response
+            PurchaseRequest purchaseRequest, Cookie unauthorizedCookie, HttpServletResponse response
     ) {
 
         if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
-            Cookie[] temp = request.getCookies();
-            List<Cookie> cookies = new ArrayList<>();
-            if (temp != null) {
-                cookies = Arrays.stream(temp)
-                        .toList().stream().filter(
-                                cookie -> cookie.getName().equalsIgnoreCase("unauthorized-cookie")
-                        ).toList();
-            }
 
-            Cookie findCookie;
-            if (cookies.isEmpty()) {
-                findCookie = new Cookie("unauthorized-cookie", UUID.randomUUID().toString());
-                findCookie.setHttpOnly(true);
-                findCookie.setMaxAge(Duration.ofMinutes(60).getNano());
-                response.addCookie(findCookie);
+            if (unauthorizedCookie == null) {
+                unauthorizedCookie = new Cookie("unauthorized-cookie", UUID.randomUUID().toString());
+                unauthorizedCookie.setHttpOnly(true);
+                unauthorizedCookie.setMaxAge(3600);
+                response.addCookie(unauthorizedCookie);
 
-            } else {
-                findCookie = cookies.getFirst();
             }
 
             ProductResponse productResponse = restTemplateHandler.
@@ -76,11 +60,11 @@ public class PurchaseService {
             }
 
             Purchase purchase = purchaseRepository.save(purchaseMapper.toPurchase(purchaseRequest));
-            Cookie finalFindCookie = findCookie;
-            Tab tab = tabRepository.findTabByUnauthorizedCookieValueAndIsOpenIsTrue(findCookie.getValue())
+            Cookie finalUnauthorizedCookie = unauthorizedCookie;
+            Tab tab = tabRepository.findTabByUnauthorizedCookieValueAndIsOpenIsTrue(unauthorizedCookie.getValue())
                     .orElseGet(
                             () -> tabRepository.save(
-                                    tabMapper.toNewUnauthorizedAccountTab(purchaseRequest, finalFindCookie.getValue())
+                                    tabMapper.toNewUnauthorizedAccountTab(purchaseRequest, finalUnauthorizedCookie.getValue())
                             )
                     );
 
@@ -147,6 +131,33 @@ public class PurchaseService {
 
         Tab tab = tabRepository.findById(tabId).orElse(null);
 
+        if (removePurchaseFromIfExists(purchaseId, tab))
+            return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
+
+        return "Заказ уже выполнен, удалить совершенную покупку невозможно";
+    }
+
+    @Transactional(
+            isolation = SERIALIZABLE,
+            propagation = REQUIRED,
+            rollbackFor = RuntimeException.class
+    )
+    public String deleteUnauthorizedAccountPurchase(Cookie unauthorizedCookie, Long purchaseId) {
+
+        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
+
+            if (unauthorizedCookie != null) {
+                Tab tab = tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
+                        .orElse(null);
+
+                if (removePurchaseFromIfExists(purchaseId, tab))
+                    return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
+            }
+        }
+        return "Заказ 'Unauthorized' уже выполнен, удалить совершенную покупку невозможно";
+    }
+
+    private boolean removePurchaseFromIfExists(Long purchaseId, Tab tab) {
         if (tab != null && tab.getIsOpen()) {
 
             Purchase purchase = purchaseRepository.findById(purchaseId).orElse(null);
@@ -164,11 +175,10 @@ public class PurchaseService {
                     tabRepository.save(tab);
                     purchaseRepository.deleteById(purchaseId);
 
-                    return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
+                    return true;
                 }
             }
         }
-
-        return "Заказ уже выполнен, удалить совершенную покупку невозможно";
+        return false;
     }
 }

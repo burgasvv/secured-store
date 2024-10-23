@@ -1,6 +1,6 @@
 package org.burgas.orderservice.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.service.TabService;
@@ -17,8 +17,17 @@ public class TabController {
     private final TabService tabService;
 
     @GetMapping("/tab/unauthorized")
-    public ResponseEntity<TabResponse> getUnauthorizedAccountTab(HttpServletRequest request) {
-        return ResponseEntity.ok(tabService.findUnauthorizedAccountTab(request));
+    public ResponseEntity<TabResponse> getUnauthorizedAccountTab(
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie
+    ) {
+        return ResponseEntity.ok(tabService.findUnauthorizedAccountTab(unauthorizedCookie));
+    }
+
+    @PostMapping("/close-unauthorized-account-tab")
+    public ResponseEntity<String> closeUnauthorizedAccountTab(
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie
+    ) {
+        return ResponseEntity.ok(tabService.closeUnauthorizedAccountTab(unauthorizedCookie));
     }
 
     @PostMapping("/close-tab")

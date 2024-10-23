@@ -1,6 +1,6 @@
 package org.burgas.orderservice.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.PurchaseRequest;
@@ -18,10 +18,21 @@ public class PurchaseController {
     @PostMapping("/make-unauthorized-account-purchase")
     public ResponseEntity<String> makeUnauthorizedAccountPurchase(
             @RequestBody PurchaseRequest purchaseRequest,
-            HttpServletRequest request, HttpServletResponse response
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie,
+            HttpServletResponse response
     ) {
         return ResponseEntity.ok(
-                purchaseService.makeUnauthorizedAccountPurchase(purchaseRequest, request, response)
+                purchaseService.makeUnauthorizedAccountPurchase(purchaseRequest, unauthorizedCookie, response)
+        );
+    }
+
+    @DeleteMapping("/delete-unauthorized-account-purchase")
+    public ResponseEntity<String> deleteUnauthorizedAccountPurchase(
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie,
+            @RequestParam Long purchaseId
+    ) {
+        return ResponseEntity.ok(
+                purchaseService.deleteUnauthorizedAccountPurchase(unauthorizedCookie, purchaseId)
         );
     }
 

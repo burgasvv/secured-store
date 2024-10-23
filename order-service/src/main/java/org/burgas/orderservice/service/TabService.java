@@ -1,7 +1,6 @@
 package org.burgas.orderservice.service;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.entity.Tab;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
@@ -56,27 +53,39 @@ public class TabService {
                 .orElseGet(TabResponse::new);
     }
 
-    public TabResponse findUnauthorizedAccountTab(
-            HttpServletRequest request
-    ) {
+    public TabResponse findUnauthorizedAccountTab(Cookie unauthorizedCookie) {
 
         if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
-            Cookie[] temp = request.getCookies();
-            List<Cookie>cookies = new ArrayList<>();
-            if (temp != null) {
-                cookies = Arrays.stream(request.getCookies())
-                        .toList().stream().filter(
-                                cookie -> cookie.getName().equalsIgnoreCase("unauthorized-cookie")
-                        ).toList();
-            }
 
-            if (!cookies.isEmpty()) {
-                Cookie findCookie = cookies.getFirst();
-                return tabRepository.findTabByUnauthorizedCookieValue(findCookie.getValue())
+            if (unauthorizedCookie != null) {
+                return tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
                         .map(tabMapper::toTabResponse)
                         .orElseGet(TabResponse::new);
             }
         }
         return TabResponse.builder().build();
+    }
+
+    @Transactional(
+            isolation = SERIALIZABLE,
+            propagation = REQUIRED,
+            rollbackFor = RuntimeException.class
+    )
+    public String closeUnauthorizedAccountTab(Cookie unauthorizedCookie) {
+
+        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
+
+            if (unauthorizedCookie != null) {
+                Tab tab = tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
+                        .orElseThrow(
+                                () -> new TabNotFoundException("Заказ 'Unauthorized' не найден")
+                        );
+                tab.setIsOpen(false);
+                tab.setCloseDate(LocalDateTime.now());
+                tabRepository.save(tab);
+                return "Заказ 'Unauthorized' был успешно оформлен и закрыт";
+            }
+        }
+        return "Заказ не был найден";
     }
 }

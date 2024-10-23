@@ -5,14 +5,20 @@ import org.burgas.apigateway.service.CustomUserDetailsService;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.util.MultiValueMap;
+
+import java.util.UUID;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -25,7 +31,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
                 .httpBasic(Customizer.withDefaults())
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(Customizer.withDefaults())
                 .authorizeExchange(
                         exchanges -> exchanges
                                 .pathMatchers("/is-authenticated","/tabs/tab/unauthorized","/purchases/make-unauthorized-account-purchase",
@@ -39,6 +45,18 @@ public class SecurityConfig {
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )
                                 .hasAnyAuthority("USER", "ADMIN")
+                )
+                .addFilterAfter(
+                        (exchange, chain) -> {
+                            MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+                            if (!cookies.containsKey("unauthorized-cookie")) {
+                                exchange.getResponse().addCookie(
+                                        ResponseCookie.from("unauthorized-cookie", UUID.randomUUID().toString()
+                                        ).build());
+                            }
+                            return chain.filter(exchange);
+                        },
+                        SecurityWebFiltersOrder.FIRST
                 )
                 .formLogin(Customizer.withDefaults())
                 .logout(Customizer.withDefaults());
