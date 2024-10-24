@@ -17,6 +17,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="payment-service" target="23" />
       <module name="purchase-service" target="23" />
     </bytecodeTargetLevel>
   </component>
@@ -27,6 +28,7 @@
       <module name="employee-service" options="-parameters" />
       <module name="identity-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="purchase-service" options="-parameters" />
       <module name="store-service" options="-parameters" />

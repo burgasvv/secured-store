@@ -12,6 +12,7 @@
           <option value="Sec-Fetch-Site" />
           <option value="Upgrade-Insecure-Requests" />
           <option value="X-XSRF-TOKEN" />
+          <option value="csrf_token" />
         </set>
       </option>
     </inspection_tool>

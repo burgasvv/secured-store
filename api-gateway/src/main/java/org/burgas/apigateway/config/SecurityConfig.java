@@ -17,7 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.server.WebFilter;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Configuration
@@ -29,12 +31,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+
         http
                 .httpBasic(Customizer.withDefaults())
-                .csrf(Customizer.withDefaults())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(
                         exchanges -> exchanges
-                                .pathMatchers("/is-authenticated","/tabs/tab/unauthorized","/purchases/make-unauthorized-account-purchase",
+                                .pathMatchers(
+                                        "/is-authenticated","/tabs/tab/unauthorized","/purchases/make-unauthorized-account-purchase",
                                         "/stores", "/stores/{store-id}", "/positions", "/positions/{position-id}",
                                         "/products", "/products/{product-id}", "/product-types",
                                         "/product-types/{productType-id}", "/identities/create"
@@ -46,22 +50,25 @@ public class SecurityConfig {
                                 )
                                 .hasAnyAuthority("USER", "ADMIN")
                 )
-                .addFilterAfter(
-                        (exchange, chain) -> {
-                            MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-                            if (!cookies.containsKey("unauthorized-cookie")) {
-                                exchange.getResponse().addCookie(
-                                        ResponseCookie.from("unauthorized-cookie", UUID.randomUUID().toString()
-                                        ).build());
-                            }
-                            return chain.filter(exchange);
-                        },
-                        SecurityWebFiltersOrder.FIRST
-                )
+                .addFilterAfter(unauthorizedCookieFilter(), SecurityWebFiltersOrder.FIRST)
                 .formLogin(Customizer.withDefaults())
                 .logout(Customizer.withDefaults());
 
         return http.build();
+    }
+
+    @Bean
+    public WebFilter unauthorizedCookieFilter() {
+        return (exchange, chain) -> {
+            MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+            if (!cookies.containsKey("unauthorized-cookie")) {
+                exchange.getResponse().addCookie(
+                        ResponseCookie.from("unauthorized-cookie", UUID.randomUUID().toString())
+                                .maxAge(Duration.ofHours(1)).build()
+                );
+            }
+            return chain.filter(exchange);
+        };
     }
 
     @Bean
