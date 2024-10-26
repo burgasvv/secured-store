@@ -1,13 +1,14 @@
 package org.burgas.orderservice.service;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.ProductResponse;
 import org.burgas.orderservice.dto.PurchaseRequest;
 import org.burgas.orderservice.entity.Purchase;
 import org.burgas.orderservice.entity.Tab;
-import org.burgas.orderservice.exception.ProductOutOfStockException;
+import org.burgas.orderservice.exception.*;
 import org.burgas.orderservice.handler.RestTemplateHandler;
 import org.burgas.orderservice.mapper.PurchaseMapper;
 import org.burgas.orderservice.mapper.TabMapper;
@@ -16,6 +17,7 @@ import org.burgas.orderservice.repository.TabRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
@@ -39,21 +41,21 @@ public class PurchaseService {
             rollbackFor = RuntimeException.class
     )
     public String makeUnauthorizedAccountPurchase(
-            PurchaseRequest purchaseRequest, Cookie unauthorizedCookie, HttpServletResponse response
+            PurchaseRequest purchaseRequest, Cookie unauthorizedCookie,
+            HttpServletRequest request, HttpServletResponse response
     ) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
+        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie == null) {
                 unauthorizedCookie = new Cookie("unauthorized-cookie", UUID.randomUUID().toString());
                 unauthorizedCookie.setHttpOnly(true);
                 unauthorizedCookie.setMaxAge(3600);
                 response.addCookie(unauthorizedCookie);
-
             }
 
             ProductResponse productResponse = restTemplateHandler.
-                    getProductByProductId(purchaseRequest.getProductId()).getBody();
+                    getProductByProductId(purchaseRequest.getProductId(), request).getBody();
 
             if (productResponse != null && productResponse.getAmount() <= 0) {
                 throw new ProductOutOfStockException("Товар отсутствует на складе");
@@ -71,9 +73,8 @@ public class PurchaseService {
             savingPurchaseAndTab(purchaseRequest, productResponse, purchase, tab);
 
             return "Покупка совершена анонимно";
-        }
 
-        return "Покупка не совершена";
+        } else return "Покупка не совершена";
     }
 
     private void savingPurchaseAndTab(
@@ -102,24 +103,34 @@ public class PurchaseService {
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public String makePurchase(PurchaseRequest purchaseRequest) {
+    public String makePurchase(PurchaseRequest purchaseRequest, HttpServletRequest request) {
 
-        ProductResponse productResponse = restTemplateHandler.
-                getProductByProductId(purchaseRequest.getProductId()).getBody();
+        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
 
-        if (productResponse != null && productResponse.getAmount() <= 0) {
-            throw new ProductOutOfStockException("Товар отсутствует на складе");
-        }
+            Long authorizedCredentialId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
 
-        Purchase purchase = purchaseRepository.save(purchaseMapper.toPurchase(purchaseRequest));
-        Tab tab = tabRepository.findTabByIdentityIdAndIsOpenIsTrue(purchaseRequest.getIdentityId())
-                .orElseGet(
-                        () -> tabRepository.save(tabMapper.toNewTab(purchaseRequest))
-                );
+            if (Objects.equals(authorizedCredentialId, purchaseRequest.getIdentityId())) {
 
-        savingPurchaseAndTab(purchaseRequest, productResponse, purchase, tab);
+                ProductResponse productResponse = restTemplateHandler.
+                        getProductByProductId(purchaseRequest.getProductId(), request).getBody();
 
-        return "Покупка совершена";
+                if (productResponse != null && productResponse.getAmount() <= 0) {
+                    throw new ProductOutOfStockException("Товар отсутствует на складе");
+                }
+
+                Purchase purchase = purchaseRepository.save(purchaseMapper.toPurchase(purchaseRequest));
+                Tab tab = tabRepository.findTabByIdentityIdAndIsOpenIsTrue(purchaseRequest.getIdentityId())
+                        .orElseGet(
+                                () -> tabRepository.save(tabMapper.toNewTab(purchaseRequest))
+                        );
+
+                savingPurchaseAndTab(purchaseRequest, productResponse, purchase, tab);
+
+                return "Покупка совершена";
+
+            } else throw new WrongIdentityPurchaseException("Попытка совершения покупки за другого пользователя");
+
+        } else throw new IdentityNotAuthorizedException("Пользователь не авторизован");
     }
 
     @Transactional(
@@ -127,14 +138,22 @@ public class PurchaseService {
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public String deletePurchase(Long purchaseId, Long tabId) {
+    public String deletePurchase(Long purchaseId, Long tabId, HttpServletRequest request) {
 
-        Tab tab = tabRepository.findById(tabId).orElse(null);
+        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+            Long authorizedCredentialId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+            Tab tab = tabRepository.findById(tabId).orElse(null);
 
-        if (removePurchaseFromIfExists(purchaseId, tab))
-            return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
+            if (Objects.equals(Objects.requireNonNull(tab).getIdentityId(), authorizedCredentialId)) {
 
-        return "Заказ уже выполнен, удалить совершенную покупку невозможно";
+                if (removePurchaseFromTabIfExists(purchaseId, tab, request))
+                    return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
+
+                return "Заказ уже выполнен, удалить совершенную покупку невозможно";
+
+            } else throw new WrongIdentityPurchaseException("Попытка удаления чужой покупки");
+
+        } else throw new IdentityNotAuthorizedException("Пользователь не авторизован");
     }
 
     @Transactional(
@@ -142,29 +161,31 @@ public class PurchaseService {
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public String deleteUnauthorizedAccountPurchase(Cookie unauthorizedCookie, Long purchaseId) {
+    public String deleteUnauthorizedAccountPurchase(Cookie unauthorizedCookie, Long purchaseId, HttpServletRequest request) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated().getBody())) {
+        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie != null) {
                 Tab tab = tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
-                        .orElse(null);
+                        .orElseThrow(
+                                () -> new TabNotFoundException("Заказ по номеру куки не найден")
+                        );
 
-                if (removePurchaseFromIfExists(purchaseId, tab))
+                if (removePurchaseFromTabIfExists(purchaseId, tab, request))
                     return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
             }
         }
         return "Заказ 'Unauthorized' уже выполнен, удалить совершенную покупку невозможно";
     }
 
-    private boolean removePurchaseFromIfExists(Long purchaseId, Tab tab) {
+    private boolean removePurchaseFromTabIfExists(Long purchaseId, Tab tab, HttpServletRequest request) {
         if (tab != null && tab.getIsOpen()) {
 
             Purchase purchase = purchaseRepository.findById(purchaseId).orElse(null);
 
             if (purchase != null) {
                 ProductResponse productResponse = restTemplateHandler.
-                        getProductByProductId(purchase.getProductId()).getBody();
+                        getProductByProductId(purchase.getProductId(), request).getBody();
 
                 if (productResponse != null) {
                     purchaseRepository.updateProductSetAmount(

@@ -1,6 +1,7 @@
 package org.burgas.orderservice.controller;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.service.TabService;
@@ -18,35 +19,40 @@ public class TabController {
 
     @GetMapping("/tab/unauthorized")
     public ResponseEntity<TabResponse> getUnauthorizedAccountTab(
-            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie, HttpServletRequest request
     ) {
-        return ResponseEntity.ok(tabService.findUnauthorizedAccountTab(unauthorizedCookie));
+        return ResponseEntity.ok(tabService.findUnauthorizedAccountTab(unauthorizedCookie, request));
     }
 
-    @PostMapping("/close-unauthorized-account-tab")
+    @PostMapping("/finish-unauthorized-account-tab")
     public ResponseEntity<String> closeUnauthorizedAccountTab(
-            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie
+            @CookieValue(name = "unauthorized-cookie") Cookie unauthorizedCookie, HttpServletRequest request
     ) {
-        return ResponseEntity.ok(tabService.closeUnauthorizedAccountTab(unauthorizedCookie));
+        return ResponseEntity.ok(tabService.closeUnauthorizedAccountTab(unauthorizedCookie, request));
     }
 
-    @PostMapping("/close-tab")
-    public ResponseEntity<String> closeTab(@RequestParam Long tabId) {
-        return ResponseEntity.ok(tabService.closeTab(tabId));
+    @PostMapping("/finish-tab")
+    public ResponseEntity<String> closeTab(@RequestParam Long tabId, HttpServletRequest request) {
+        return ResponseEntity.ok(tabService.closeTab(tabId, request));
+    }
+
+    @DeleteMapping("/delete-tab")
+    public ResponseEntity<String> deleteTabIfNotFinished(@RequestParam Long tabId, HttpServletRequest request) {
+        return ResponseEntity.ok(tabService.deleteTabByIdIfNotFinished(tabId, request));
     }
 
     @GetMapping("/identity/{identity-id}")
     public ResponseEntity<List<TabResponse>> getTabsByIdentityId(
-            @PathVariable(name = "identity-id") Long identityId
+            @PathVariable(name = "identity-id") Long identityId, HttpServletRequest request
     ) {
-        return ResponseEntity.ok(tabService.findTabsByIdentityId(identityId));
+        return ResponseEntity.ok(tabService.findTabsByIdentityId(identityId, request));
     }
 
     @GetMapping("/identity/{identity-id}/{tab-id}")
     public ResponseEntity<TabResponse> getTabByIdentityAndTab(
             @PathVariable(name = "identity-id") Long identityId,
-            @PathVariable(name = "tab-id") Long tabId
+            @PathVariable(name = "tab-id") Long tabId, HttpServletRequest request
     ) {
-        return ResponseEntity.ok(tabService.findTabByIdentityIdAndTabId(identityId, tabId));
+        return ResponseEntity.ok(tabService.findTabByIdentityIdAndTabId(identityId, tabId, request));
     }
 }

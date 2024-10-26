@@ -1,5 +1,6 @@
 package org.burgas.identityservice.mapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.identityservice.dto.IdentityRequest;
 import org.burgas.identityservice.dto.IdentityRequestEdit;
@@ -58,12 +59,12 @@ public class IdentityMapper {
                 .build();
     }
 
-    public IdentityResponse toIdentityResponse(Identity identity) {
+    public IdentityResponse toIdentityResponse(Identity identity, HttpServletRequest request) {
 
         return IdentityResponse.builder()
                 .id(identity.getId())
                 .employeeResponse(
-                        restTemplateHandler.getEmployeeByIdentityId(identity.getId()).getBody()
+                        restTemplateHandler.getEmployeeByIdentityId(identity.getId(), request).getBody()
                 )
                 .username(identity.getUsername())
                 .email(identity.getEmail())

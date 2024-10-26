@@ -1,5 +1,6 @@
 package org.burgas.orderservice.mapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.PurchaseRequest;
 import org.burgas.orderservice.dto.TabResponse;
@@ -40,7 +41,7 @@ public class TabMapper {
                 .build();
     }
 
-    public TabResponse toTabResponse(Tab tab) {
+    public TabResponse toTabResponse(Tab tab, HttpServletRequest request) {
 
         return TabResponse.builder()
                 .id(tab.getId())
@@ -50,14 +51,17 @@ public class TabMapper {
                 .totalPrice(tab.getTotalPrice())
                 .unauthorizedCookieValue(tab.getUnauthorizedCookieValue())
                 .identityResponse(
-                        restTemplateHandler.getIdentityByTabId(tab.getId()).getBody()
+                        restTemplateHandler.getIdentityByTabId(tab.getId(), request).getBody()
                 )
                 .storeResponse(
-                        restTemplateHandler.getStoreByStoreId(tab.getStoreId()).getBody()
+                        restTemplateHandler.getStoreByStoreId(tab.getStoreId(), request).getBody()
                 )
                 .purchaseResponses(
                         tab.getPurchases()
-                                .stream().map(purchaseMapper::toPurchaseResponse)
+                                .stream()
+                                .map(
+                                        purchase -> purchaseMapper.toPurchaseResponse(purchase, request)
+                                )
                                 .toList()
                 )
                 .build();

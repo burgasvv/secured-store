@@ -1,8 +1,10 @@
 package org.burgas.productservice.handler;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.productservice.dto.StoreResponse;
+import org.burgas.productservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +25,10 @@ public class RestTemplateHandler {
             name = "getStoresWithProductsByProductId",
             fallbackMethod = "fallBackGetStoreWithProductsByProductId"
     )
-    public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(Long productId) {
+    public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(Long productId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
         return restTemplate.exchange(
                 URI.create("http://localhost:9010/stores/stores-with-product/" + productId),
                 HttpMethod.GET, null, new ParameterizedTypeReference<>() {}

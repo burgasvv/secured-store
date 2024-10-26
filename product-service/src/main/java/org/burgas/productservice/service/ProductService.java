@@ -1,5 +1,6 @@
 package org.burgas.productservice.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.productservice.dto.ProductRequest;
 import org.burgas.productservice.dto.ProductResponse;
@@ -20,15 +21,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<ProductResponse> findAll() {
+    public List<ProductResponse> findAll(HttpServletRequest request) {
         return productRepository.findAll()
-                .stream().map(productMapper::toProductResponse)
+                .stream().map(product -> productMapper.toProductResponse(product, request))
                 .toList();
     }
 
-    public ProductResponse findById(Long productId) {
+    public ProductResponse findById(Long productId, HttpServletRequest request) {
         return productRepository.findById(productId)
-                .map(productMapper::toProductResponse)
+                .map(product -> productMapper.toProductResponse(product, request))
                 .orElseGet(ProductResponse::new);
     }
 
@@ -37,11 +38,12 @@ public class ProductService {
             propagation = Propagation.REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public ProductResponse createOrUpdate(ProductRequest productRequest) {
+    public ProductResponse createOrUpdate(ProductRequest productRequest, HttpServletRequest request) {
         return productMapper.toProductResponse(
                 productRepository.save(
                         productMapper.toProduct(productRequest)
-                )
+                ),
+                request
         );
     }
 

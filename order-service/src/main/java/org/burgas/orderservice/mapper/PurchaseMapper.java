@@ -1,5 +1,6 @@
 package org.burgas.orderservice.mapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.PurchaseRequest;
 import org.burgas.orderservice.dto.PurchaseResponse;
@@ -25,16 +26,16 @@ public class PurchaseMapper {
                 .build();
     }
 
-    public PurchaseResponse toPurchaseResponse(Purchase purchase) {
+    public PurchaseResponse toPurchaseResponse(Purchase purchase, HttpServletRequest request) {
         return PurchaseResponse.builder()
                 .id(purchase.getId())
                 .amount(purchase.getAmount())
                 .purchaseDateTime(purchase.getPurchaseDateTime())
                 .productResponse(
-                        restTemplateHandler.getProductByProductId(purchase.getProductId()).getBody()
+                        restTemplateHandler.getProductByProductId(purchase.getProductId(), request).getBody()
                 )
                 .identityResponse(
-                        restTemplateHandler.getIdentityByIdentityId(purchase.getIdentityId()).getBody()
+                        restTemplateHandler.getIdentityByIdentityId(purchase.getIdentityId(), request).getBody()
                 )
                 .build();
     }

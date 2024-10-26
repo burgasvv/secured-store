@@ -1,5 +1,6 @@
 package org.burgas.productservice.mapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.productservice.dto.ProductRequest;
 import org.burgas.productservice.dto.ProductResponse;
@@ -24,10 +25,10 @@ public class ProductMapper {
     private final ProductTypeMapper productTypeMapper;
     private final RestTemplateHandler restTemplateHandler;
 
-    public ProductResponse toProductResponse(Product product) {
+    public ProductResponse toProductResponse(Product product, HttpServletRequest request) {
 
         List<StoreResponse> storeResponses = restTemplateHandler
-                .getStoresWithProductsByProductId(product.getId()).getBody();
+                .getStoresWithProductsByProductId(product.getId(), request).getBody();
 
         List<ProductStore> productStores = productStoreRepository
                 .findProductStoresByProductId(product.getId())

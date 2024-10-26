@@ -1,15 +1,18 @@
 package org.burgas.orderservice.handler;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.IdentityResponse;
 import org.burgas.orderservice.dto.ProductResponse;
 import org.burgas.orderservice.dto.StoreResponse;
+import org.burgas.orderservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +24,10 @@ public class RestTemplateHandler {
             name = "getIdentityByTabId",
             fallbackMethod = "fallBackGetIdentityByTabId"
     )
-    public ResponseEntity<IdentityResponse> getIdentityByTabId(Long tabId) {
+    public ResponseEntity<IdentityResponse> getIdentityByTabId(Long tabId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
         return restTemplate.getForEntity(
                 URI.create("http://localhost:8888/identities/tab/" + tabId),
                 IdentityResponse.class
@@ -37,7 +43,10 @@ public class RestTemplateHandler {
             name = "getProductByProductId",
             fallbackMethod = "fallBackGetProductByProductId"
     )
-    public ResponseEntity<ProductResponse> getProductByProductId(Long productId) {
+    public ResponseEntity<ProductResponse> getProductByProductId(Long productId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
         return restTemplate.getForEntity(
                 URI.create("http://localhost:9020/products/" + productId),
                 ProductResponse.class
@@ -53,7 +62,10 @@ public class RestTemplateHandler {
             name = "getIdentityByIdentityId",
             fallbackMethod = "fallBackGetIdentityByIdentityId"
     )
-    public ResponseEntity<IdentityResponse> getIdentityByIdentityId(Long identityId) {
+    public ResponseEntity<IdentityResponse> getIdentityByIdentityId(Long identityId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
         return restTemplate.getForEntity(
                 URI.create("http://localhost:8888/identities/identity/" + identityId),
                 IdentityResponse.class
@@ -69,7 +81,10 @@ public class RestTemplateHandler {
             name = "getStoreByStoreId",
             fallbackMethod = "fallBackGetStoreByStoreId"
     )
-    public ResponseEntity<StoreResponse> getStoreByStoreId(Long storeId) {
+    public ResponseEntity<StoreResponse> getStoreByStoreId(Long storeId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
         return restTemplate.getForEntity(
                 URI.create("http://localhost:9010/stores/" + storeId),
                 StoreResponse.class
@@ -85,9 +100,12 @@ public class RestTemplateHandler {
             name = "isAuthenticated",
             fallbackMethod = "fallBackIsAuthenticated"
     )
-    public ResponseEntity<Boolean> isAuthenticated() {
+    public ResponseEntity<Boolean> isAuthenticated(HttpServletRequest httpServletRequest) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(httpServletRequest))
+        );
         return restTemplate.getForEntity(
-                URI.create("https://localhost:8765/is-authenticated"),
+                URI.create("http://localhost:8765/auth/is-authenticated"),
                 Boolean.class
         );
     }
@@ -95,5 +113,24 @@ public class RestTemplateHandler {
     @SuppressWarnings("unused")
     private ResponseEntity<Boolean> fallBackIsAuthenticated(Throwable throwable) {
         return ResponseEntity.ok(false);
+    }
+
+    @CircuitBreaker(
+            name = "getAuthenticationCredentialId",
+            fallbackMethod = "falBackGetAuthenticationCredentialId"
+    )
+    public ResponseEntity<Long> getAuthenticationCredentialId(HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
+        return restTemplate.getForEntity(
+                URI.create("http://localhost:8765/auth/authentication-data"),
+                Long.class
+        );
+    }
+
+    @SuppressWarnings("unused")
+    public ResponseEntity<Long> falBackGetAuthenticationCredentialId(Throwable throwable) {
+        return ResponseEntity.ok(0L);
     }
 }

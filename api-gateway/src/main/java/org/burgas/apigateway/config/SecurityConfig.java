@@ -38,13 +38,15 @@ public class SecurityConfig {
                 .authorizeExchange(
                         exchanges -> exchanges
                                 .pathMatchers(
-                                        "/is-authenticated","/tabs/tab/unauthorized","/purchases/make-unauthorized-account-purchase",
+                                        "/auth/is-authenticated","/tabs/tab/unauthorized",
+                                        "/purchases/make-unauthorized-account-purchase",
+                                        "/tabs/finish-unauthorized-account-tab",
                                         "/stores", "/stores/{store-id}", "/positions", "/positions/{position-id}",
                                         "/products", "/products/{product-id}", "/product-types",
                                         "/product-types/{productType-id}", "/identities/create"
                                 )
                                 .permitAll()
-                                .pathMatchers(
+                                .pathMatchers("/auth/**",
                                         "/employees/**", "/identities/**", "/positions/**", "/stores/**",
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )

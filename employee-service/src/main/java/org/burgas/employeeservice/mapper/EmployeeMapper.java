@@ -1,5 +1,6 @@
 package org.burgas.employeeservice.mapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.employeeservice.dto.EmployeeRequest;
 import org.burgas.employeeservice.dto.EmployeeResponse;
@@ -17,7 +18,7 @@ public class EmployeeMapper {
     private final PositionMapper positionMapper;
     private final RestTemplateHandler restTemplateHandler;
 
-    public EmployeeResponse toEmployeeResponse(Employee employee) {
+    public EmployeeResponse toEmployeeResponse(Employee employee, HttpServletRequest request) {
 
         return EmployeeResponse.builder()
                 .id(employee.getId())
@@ -33,7 +34,7 @@ public class EmployeeMapper {
                         )
                 )
                 .storeResponse(
-                        restTemplateHandler.getStoreById(employee.getStoreId()).getBody()
+                        restTemplateHandler.getStoreById(employee.getStoreId(), request).getBody()
                 )
                 .build();
     }
