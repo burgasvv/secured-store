@@ -4,6 +4,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.IdentityResponse;
+import org.burgas.orderservice.dto.PaymentTypeResponse;
 import org.burgas.orderservice.dto.ProductResponse;
 import org.burgas.orderservice.dto.StoreResponse;
 import org.burgas.orderservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
@@ -94,6 +95,27 @@ public class RestTemplateHandler {
     @SuppressWarnings("unused")
     private ResponseEntity<StoreResponse> fallBackGetStoreByStoreId(Throwable throwable) {
         return ResponseEntity.ok(StoreResponse.builder().build());
+    }
+
+    @CircuitBreaker(
+            name = "getPaymentTypeResponse",
+            fallbackMethod = "fallBackGetTypeResponse"
+    )
+    public ResponseEntity<PaymentTypeResponse> getPaymentTypeResponse(
+            Long paymentTypeId, HttpServletRequest request
+    ) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
+        return restTemplate.getForEntity(
+                URI.create("http://localhost:9040/payment-types/" + paymentTypeId),
+                PaymentTypeResponse.class
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private ResponseEntity<PaymentTypeResponse> fallBackGetTypeResponse(Throwable throwable) {
+        return ResponseEntity.ok(PaymentTypeResponse.builder().build());
     }
 
     @CircuitBreaker(

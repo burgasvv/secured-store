@@ -50,6 +50,9 @@ public class TabMapper {
                 .openDate(tab.getOpenDate())
                 .totalPrice(tab.getTotalPrice())
                 .unauthorizedCookieValue(tab.getUnauthorizedCookieValue())
+                .paymentTypeResponse(
+                        restTemplateHandler.getPaymentTypeResponse(tab.getPaymentTypeId(), request).getBody()
+                )
                 .identityResponse(
                         restTemplateHandler.getIdentityByTabId(tab.getId(), request).getBody()
                 )

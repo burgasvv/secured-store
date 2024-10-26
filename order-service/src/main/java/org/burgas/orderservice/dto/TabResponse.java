@@ -23,4 +23,5 @@ public class TabResponse {
     private String unauthorizedCookieValue;
     private LocalDateTime openDate;
     private LocalDateTime closeDate;
+    private PaymentTypeResponse paymentTypeResponse;
 }

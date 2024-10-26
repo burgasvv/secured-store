@@ -25,6 +25,7 @@ public class Tab {
     private Long id;
     private Long storeId;
     private Long identityId;
+    private Long paymentTypeId;
 
     @Column(nullable = false)
     private Boolean isOpen;

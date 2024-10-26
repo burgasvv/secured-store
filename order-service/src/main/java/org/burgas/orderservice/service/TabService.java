@@ -39,7 +39,7 @@ public class TabService {
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public String closeTab(Long tabId, HttpServletRequest request) {
+    public String closeTab(Long tabId, Long paymentTypeId, HttpServletRequest request) {
 
         if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
             Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
@@ -47,6 +47,7 @@ public class TabService {
                     () -> new TabNotFoundException("Заказ с идентификатором " + tabId + " не найден")
             );
             if (Objects.equals(authenticatedIdentityId, tab.getIdentityId())) {
+                tab.setPaymentTypeId(paymentTypeId);
                 tab.setIsOpen(false);
                 tab.setCloseDate(LocalDateTime.now());
                 tabRepository.save(tab);

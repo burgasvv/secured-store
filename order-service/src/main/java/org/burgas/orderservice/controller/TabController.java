@@ -32,8 +32,11 @@ public class TabController {
     }
 
     @PostMapping("/finish-tab")
-    public ResponseEntity<String> closeTab(@RequestParam Long tabId, HttpServletRequest request) {
-        return ResponseEntity.ok(tabService.closeTab(tabId, request));
+    public ResponseEntity<String> closeTab(
+            @RequestParam Long tabId, @RequestParam Long paymentTapId,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(tabService.closeTab(tabId, paymentTapId, request));
     }
 
     @DeleteMapping("/delete-tab")
