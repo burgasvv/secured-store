@@ -69,12 +69,10 @@ public class PurchaseService {
                                     tabMapper.toNewUnauthorizedAccountTab(purchaseRequest, finalUnauthorizedCookie.getValue())
                             )
                     );
-
             savingPurchaseAndTab(purchaseRequest, productResponse, purchase, tab);
-
             return "Покупка совершена анонимно";
 
-        } else return "Покупка не совершена";
+        } else throw new IdentityAuthorizedForPurchase("Пользователь авторизован для совершения покупки");
     }
 
     private void savingPurchaseAndTab(
@@ -106,11 +104,9 @@ public class PurchaseService {
     public String makePurchase(PurchaseRequest purchaseRequest, HttpServletRequest request) {
 
         if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-
             Long authorizedCredentialId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
 
             if (Objects.equals(authorizedCredentialId, purchaseRequest.getIdentityId())) {
-
                 ProductResponse productResponse = restTemplateHandler.
                         getProductByProductId(purchaseRequest.getProductId(), request).getBody();
 
@@ -123,9 +119,7 @@ public class PurchaseService {
                         .orElseGet(
                                 () -> tabRepository.save(tabMapper.toNewTab(purchaseRequest))
                         );
-
                 savingPurchaseAndTab(purchaseRequest, productResponse, purchase, tab);
-
                 return "Покупка совершена";
 
             } else throw new WrongIdentityPurchaseException("Попытка совершения покупки за другого пользователя");
@@ -148,8 +142,8 @@ public class PurchaseService {
 
                 if (removePurchaseFromTabIfExists(purchaseId, tab, request))
                     return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
-
-                return "Заказ уже выполнен, удалить совершенную покупку невозможно";
+                else
+                    throw new TabAlreadyDoneException("Заказ уже выполнен, удалить совершенную покупку невозможно");
 
             } else throw new WrongIdentityPurchaseException("Попытка удаления чужой покупки");
 
@@ -175,7 +169,9 @@ public class PurchaseService {
                     return "Покупка с идентификатором " + purchaseId + " удалена из заказа и базы";
             }
         }
-        return "Заказ 'Unauthorized' уже выполнен, удалить совершенную покупку невозможно";
+        throw new TabAlreadyDoneException(
+                "Заказ 'Unauthorized' уже выполнен, удалить совершенную покупку невозможно"
+        );
     }
 
     private boolean removePurchaseFromTabIfExists(Long purchaseId, Tab tab, HttpServletRequest request) {

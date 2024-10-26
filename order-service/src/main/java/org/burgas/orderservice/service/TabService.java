@@ -7,6 +7,7 @@ import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.entity.Purchase;
 import org.burgas.orderservice.entity.Tab;
 import org.burgas.orderservice.exception.IdentityNotAuthorizedException;
+import org.burgas.orderservice.exception.IdentityNotMatchException;
 import org.burgas.orderservice.exception.TabNotFoundException;
 import org.burgas.orderservice.handler.RestTemplateHandler;
 import org.burgas.orderservice.mapper.TabMapper;
@@ -41,7 +42,6 @@ public class TabService {
     public String closeTab(Long tabId, HttpServletRequest request) {
 
         if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-
             Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
             Tab tab = tabRepository.findById(tabId).orElseThrow(
                     () -> new TabNotFoundException("Заказ с идентификатором " + tabId + " не найден")
@@ -52,25 +52,30 @@ public class TabService {
                 tabRepository.save(tab);
                 return "Заказ только что совершен и закрыт, спасибо за покупки";
 
-            } else {
-                return "Идентификатор авторизованного пользователя не совпадает с идентификатором владельца заказа";
-            }
+            } else
+                throw new IdentityNotMatchException(
+                        "Идентификатор авторизованного пользователя не совпадает с идентификатором владельца заказа"
+                );
 
-        } else {
+        } else
             throw new IdentityNotAuthorizedException("Пользователь не авторизован для оформления заказа");
-        }
 
     }
 
     public List<TabResponse> findTabsByIdentityId(Long identityId, HttpServletRequest request) {
         return tabRepository.findTabsByIdentityId(identityId)
-                .stream().map(tab -> tabMapper.toTabResponse(tab, request))
+                .stream()
+                .map(
+                        tab -> tabMapper.toTabResponse(tab, request)
+                )
                 .toList();
     }
 
     public TabResponse findTabByIdentityIdAndTabId(Long identityId, Long tabId, HttpServletRequest request) {
         return tabRepository.findTabByIdentityIdAndId(identityId, tabId)
-                .map(tab -> tabMapper.toTabResponse(tab, request))
+                .map(
+                        tab -> tabMapper.toTabResponse(tab, request)
+                )
                 .orElseGet(TabResponse::new);
     }
 
@@ -84,7 +89,7 @@ public class TabService {
                         .orElseGet(TabResponse::new);
             }
         }
-        return TabResponse.builder().build();
+        throw new TabNotFoundException("Заказ не был найден");
     }
 
     @Transactional(
@@ -107,7 +112,7 @@ public class TabService {
                 return "Заказ 'Unauthorized' был успешно оформлен и закрыт";
             }
         }
-        return "Заказ не был найден";
+        throw new TabNotFoundException("Заказ не ьыл найден");
     }
 
     @Transactional(
@@ -118,7 +123,6 @@ public class TabService {
     public String deleteTabByIdIfNotFinished(Long tabId, HttpServletRequest request) {
 
         if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-
             Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
             Tab tab = tabRepository.findById(tabId).orElseGet(Tab::new);
 
@@ -132,16 +136,16 @@ public class TabService {
                     tabRepository.deleteById(tabId);
                     return "Заказ отменен, корзина очищена";
 
-                } else {
-                    return "Заказ уже завершен и не может быть удален или очищен";
-                }
+                } else return "Заказ уже завершен и не может быть удален или очищен";
 
-            } else {
-                return "Идентификатор авторизованного пользователя не совпадает с идентификатором владельца заказа";
-            }
+            } else
+                throw new IdentityNotMatchException(
+                        "Идентификатор авторизованного пользователя не совпадает с идентификатором владельца заказа"
+                );
 
-        } else {
-            throw new IdentityNotAuthorizedException("Пользователь не авторизован для удаления не завершенного заказа");
-        }
+        } else
+            throw new IdentityNotAuthorizedException(
+                "Пользователь не авторизован для удаления не завершенного заказа"
+        );
     }
 }

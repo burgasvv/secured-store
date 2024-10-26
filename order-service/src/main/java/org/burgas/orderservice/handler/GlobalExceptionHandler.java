@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
                 .body(exception.getMessage());
     }
 
-    @ExceptionHandler(UnauthorizedCookieNotFoundException.class)
-    public ResponseEntity<String> handleUnauthorizedCookieNotFoundException(UnauthorizedCookieNotFoundException e) {
+    @ExceptionHandler(IdentityNotMatchException.class)
+    public ResponseEntity<String> handleIdentityNotMatchException(IdentityNotMatchException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
@@ -51,8 +51,8 @@ public class GlobalExceptionHandler {
                 .body(exception.getMessage());
     }
 
-    @ExceptionHandler(PurchaseNotCompletedException.class)
-    public ResponseEntity<String> handlePurchaseNotCompletedException(PurchaseNotCompletedException e) {
+    @ExceptionHandler(IdentityAuthorizedForPurchase.class)
+    public ResponseEntity<String> handleIdentityAuthorizedForPurchase(IdentityAuthorizedForPurchase e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_MODIFIED)
                 .body(e.getMessage());

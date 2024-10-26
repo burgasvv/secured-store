@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class UnauthorizedCookieNotFoundException extends RuntimeException{
+public class IdentityAuthorizedForPurchase extends RuntimeException{
 
     private final String message;
 }

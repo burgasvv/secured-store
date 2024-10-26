@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PurchaseNotCompletedException extends RuntimeException{
+public class IdentityNotMatchException extends RuntimeException{
 
     private final String message;
 }
