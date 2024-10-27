@@ -48,7 +48,7 @@ public class IdentityServiceApplication {
 
             List<Identity> identities = List.of(
                     Identity.builder().username("burgasvv")
-                            .email("burgasvv@gmail.com")
+                            .email("burgassme@gmail.com")
                             .password(passwordEncoder.encode("cg3audio"))
                             .authority(authorities.get(1))
                             .enabled(true).build()

@@ -61,7 +61,7 @@ public class ProxyConfig {
                 .route(
                         "notifications",
                         predicateSpec -> predicateSpec
-                                .path("/topics/**")
+                                .path("/notifications/**")
                                 .uri("lb:http://notification-server")
                 )
                 .build();

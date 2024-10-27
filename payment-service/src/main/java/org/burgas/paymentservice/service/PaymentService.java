@@ -28,14 +28,13 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final RestTemplateHandler restTemplateHandler;
-    private final KafkaProducer kafkaProducer;
 
     @Transactional(
             isolation = SERIALIZABLE,
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public PaymentResponse makePayment(Long identityId, Long tabId, HttpServletRequest request) {
+    public String makePayment(Long identityId, Long tabId, HttpServletRequest request) {
         IdentityPrincipal principal = restTemplateHandler.getPrincipal(request).getBody();
 
         if (Objects.requireNonNull(principal).getIsAuthenticated()) {
@@ -51,8 +50,10 @@ public class PaymentService {
                             ),
                             request
                     );
-                    kafkaProducer.sendPaymentNotification(paymentResponse);
-                    return paymentResponse;
+                    return restTemplateHandler.sendEmailPaymentMessage(
+                            paymentMapper.toPaymentMessage(paymentResponse),
+                            request
+                    ).getBody();
 
                 } else
                     throw new TabNotFoundException("Заказ по идентификатору не найден");
