@@ -17,6 +17,7 @@ public class KafkaConsumer {
     public void getPaymentResponseFromPaymentService(
             ConsumerRecord<String, PaymentResponse> consumerRecord
     ) {
-        System.out.println(consumerRecord.value());
+        PaymentResponse paymentResponse = consumerRecord.value();
+        System.out.println(paymentResponse);
     }
 }
