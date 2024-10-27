@@ -91,17 +91,17 @@ class StoreControllerTest {
     @Test
     void handleDeleteStore() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.delete("/stores/delete")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param("storeId", "2")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
+                .andExpect(
+                        result -> {
+                            result.getResponse().setCharacterEncoding("UTF-8");
+                            System.out.println(result.getResponse().getContentAsString());
+                        }
+                ).andReturn();
     }
 }

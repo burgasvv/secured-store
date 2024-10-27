@@ -17,7 +17,11 @@ public class CustomJavaMailSender {
     public void sendPaymentMessage(PaymentMessage paymentMessage) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false);
-        mimeMessageHelper.setFrom("admin");
+        mimeMessageHelper.setSubject(
+                "Квитанция оп оплате пользователя "
+                + paymentMessage.getTabResponse().getIdentityResponse().getUsername()
+        );
+        mimeMessageHelper.setFrom("From store");
         mimeMessageHelper.setTo(paymentMessage.getTabResponse().getIdentityResponse().getEmail());
         mimeMessageHelper.setReplyTo("burgassme@gmail.com");
         mimeMessageHelper.setText(paymentMessage.toString());

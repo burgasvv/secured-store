@@ -40,6 +40,7 @@ public class RestTemplateHandler {
         return ResponseEntity.ok(IdentityResponse.builder().build());
     }
 
+    @SuppressWarnings("unused")
     @CircuitBreaker(
             name = "getIdentityByPurchaseId",
             fallbackMethod = "fallBackGetIdentityByPurchaseId"
@@ -78,6 +79,7 @@ public class RestTemplateHandler {
         return ResponseEntity.ok(ProductResponse.builder().build());
     }
 
+    @SuppressWarnings("unused")
     @CircuitBreaker(
             name = "getIdentityByIdentityId",
             fallbackMethod = "fallBackGetIdentityByIdentityId"

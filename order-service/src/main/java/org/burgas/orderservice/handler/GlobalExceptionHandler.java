@@ -57,4 +57,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_MODIFIED)
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(PurchaseNotFoundException.class)
+    public ResponseEntity<String> handlePurchaseNotFoundException(PurchaseNotFoundException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
 }

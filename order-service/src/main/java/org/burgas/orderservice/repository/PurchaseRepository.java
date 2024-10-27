@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
@@ -27,4 +28,14 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
                     """
     )
     List<Purchase> findPurchasesByTabId(Long tabId);
+
+    Optional<Purchase> findPurchasesByIdAndProductId(Long purchaseId, Long productId);
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    select ps.amount from product_store ps where ps.store_id = ?1 and ps.product_id = ?2
+                    """
+    )
+    Integer findProductAmountByStoreIdAndProductId(Long storeId, Long productId);
 }

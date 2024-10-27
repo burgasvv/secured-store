@@ -8,13 +8,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(ProductStorePK.class)
-public class ProductStore {
+public class ProductStore implements Serializable {
 
     @Id
     private Long productId;

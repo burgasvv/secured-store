@@ -53,4 +53,18 @@ public class PurchaseController {
     ) {
         return ResponseEntity.ok(purchaseService.deletePurchase(purchaseId, tabId, request));
     }
+
+    @PutMapping("/increment-purchase-product")
+    public ResponseEntity<String> incrementPurchaseProductAmount(
+            @RequestParam Long purchaseId, @RequestParam Long productId, HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(purchaseService.incrementPurchaseProductAmount(purchaseId, productId, request));
+    }
+
+    @PutMapping("/decrement-purchase-product")
+    public ResponseEntity<String> decrementPurchaseProductAmount(
+            @RequestParam Long purchaseId, @RequestParam Long productId, HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(purchaseService.decrementPurchaseProductAmount(purchaseId, productId, request));
+    }
 }

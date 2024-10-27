@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.ProductResponse;
 import org.burgas.orderservice.dto.PurchaseRequest;
+import org.burgas.orderservice.dto.StoreResponse;
 import org.burgas.orderservice.entity.Purchase;
 import org.burgas.orderservice.entity.Tab;
 import org.burgas.orderservice.exception.*;
@@ -197,5 +198,79 @@ public class PurchaseService {
             }
         }
         return false;
+    }
+
+    @Transactional(
+            isolation = SERIALIZABLE,
+            propagation = REQUIRED,
+            rollbackFor = RuntimeException.class
+    )
+    public String incrementPurchaseProductAmount(Long purchaseId, Long productId, HttpServletRequest request) {
+
+        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+            Purchase purchase = purchaseRepository.findPurchasesByIdAndProductId(purchaseId, productId)
+                    .orElseThrow(
+                            () -> new PurchaseNotFoundException("Искомая покупка не найдена")
+                    );
+            Tab tab = purchase.getTab();
+            if (!Objects.equals(authenticatedIdentityId, tab.getIdentityId()))
+                throw new IdentityNotMatchException("Попытка изменения покупки из чужого заказа");
+
+            if (Objects.equals(authenticatedIdentityId, purchase.getIdentityId())) {
+                StoreResponse storeResponse = restTemplateHandler
+                        .getStoreByStoreId(tab.getStoreId(), request).getBody();
+                Integer productAmountInStore = purchaseRepository
+                        .findProductAmountByStoreIdAndProductId(
+                                Objects.requireNonNull(storeResponse).getId(), productId
+                        );
+
+                if (Objects.equals(purchase.getAmount(), productAmountInStore))
+                    throw new ProductOutOfStockException("На данный момент это весь конкретный товар в магазине");
+
+                else {
+                    purchase.setAmount(purchase.getAmount() + 1);
+                    purchase = purchaseRepository.save(purchase);
+                    return "Количество товара в корзине увеличено: " + purchase.getAmount();
+                }
+
+            } else
+                throw new IdentityNotMatchException("Попытка изменения чужих данных");
+        }
+        throw new IdentityNotAuthorizedException("Пользователь не авторизован для изменения данных о покупке");
+    }
+
+    @Transactional(
+            isolation = SERIALIZABLE,
+            propagation = REQUIRED,
+            rollbackFor = RuntimeException.class
+    )
+    public String decrementPurchaseProductAmount(Long purchaseId, Long productId, HttpServletRequest request) {
+
+        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+            Purchase purchase = purchaseRepository.findPurchasesByIdAndProductId(purchaseId, productId)
+                    .orElseThrow(
+                            () -> new PurchaseNotFoundException("Искомая покупка не найдена")
+                    );
+            Tab tab = purchase.getTab();
+            if (!Objects.equals(authenticatedIdentityId, tab.getIdentityId()))
+                throw new IdentityNotMatchException("Попытка изменения покупки из чужого заказа");
+
+            if (Objects.equals(authenticatedIdentityId, purchase.getIdentityId())) {
+
+                if (purchase.getAmount() <= 1)
+                    throw new ProductOutOfStockException("Вы не можете приобрести товар в количестве меньше 1");
+
+                else {
+                    purchase.setAmount(purchase.getAmount() - 1);
+                    purchase = purchaseRepository.save(purchase);
+                    return "Количество товара в корзине уменьшено: " + purchase.getAmount();
+                }
+
+            } else
+                throw new IdentityNotMatchException("Попытка изменения чужих данных");
+        }
+        throw new IdentityNotAuthorizedException("Пользователь не авторизован для изменения данных о покупке");
     }
 }

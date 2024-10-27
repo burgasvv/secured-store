@@ -3,14 +3,14 @@ package org.burgas.identityservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 
+@Data
 @Entity
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Identity {
+public class Identity implements Serializable {
 
     @Id
     @GeneratedValue

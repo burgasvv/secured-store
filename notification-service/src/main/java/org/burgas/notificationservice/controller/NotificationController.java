@@ -28,6 +28,6 @@ public class NotificationController {
             throws MessagingException {
 
         javaMailSender.sendPaymentMessage(paymentMessage);
-        return ResponseEntity.ok("Сообщение отправлено на электронную почту покупателя");
+        return ResponseEntity.ok("Квитанция об оплате отправлена на электронную почту покупателя");
     }
 }
