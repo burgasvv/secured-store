@@ -46,7 +46,8 @@ public class SecurityConfig {
                                         "/product-types/{productType-id}", "/identities/create"
                                 )
                                 .permitAll()
-                                .pathMatchers("/auth/**",
+                                .pathMatchers(
+                                        "/auth/**" ,"/payment-types/**" ,"/payments/**", "/topics/**",
                                         "/employees/**", "/identities/**", "/positions/**", "/stores/**",
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )

@@ -1,4 +1,4 @@
-package org.burgas.orderservice.dto;
+package org.burgas.paymentservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

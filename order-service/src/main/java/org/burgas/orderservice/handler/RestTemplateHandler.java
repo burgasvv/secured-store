@@ -41,6 +41,25 @@ public class RestTemplateHandler {
     }
 
     @CircuitBreaker(
+            name = "getIdentityByPurchaseId",
+            fallbackMethod = "fallBackGetIdentityByPurchaseId"
+    )
+    public ResponseEntity<IdentityResponse> getIdentityByPurchaseId(Long purchaseId, HttpServletRequest request) {
+        restTemplate.setInterceptors(
+                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
+        );
+        return restTemplate.getForEntity(
+                URI.create("http://localhost:8888/identities/purchase/{purchase-id}"),
+                IdentityResponse.class
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private ResponseEntity<IdentityResponse> fallBackGetIdentityByPurchaseId(Throwable throwable) {
+        return ResponseEntity.ok(IdentityResponse.builder().build());
+    }
+
+    @CircuitBreaker(
             name = "getProductByProductId",
             fallbackMethod = "fallBackGetProductByProductId"
     )
@@ -99,7 +118,7 @@ public class RestTemplateHandler {
 
     @CircuitBreaker(
             name = "getPaymentTypeResponse",
-            fallbackMethod = "fallBackGetTypeResponse"
+            fallbackMethod = "fallBackGetPaymentTypeResponse"
     )
     public ResponseEntity<PaymentTypeResponse> getPaymentTypeResponse(
             Long paymentTypeId, HttpServletRequest request
@@ -114,7 +133,7 @@ public class RestTemplateHandler {
     }
 
     @SuppressWarnings("unused")
-    private ResponseEntity<PaymentTypeResponse> fallBackGetTypeResponse(Throwable throwable) {
+    private ResponseEntity<PaymentTypeResponse> fallBackGetPaymentTypeResponse(Throwable throwable) {
         return ResponseEntity.ok(PaymentTypeResponse.builder().build());
     }
 

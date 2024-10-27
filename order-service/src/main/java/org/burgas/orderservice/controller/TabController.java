@@ -32,11 +32,11 @@ public class TabController {
     }
 
     @PostMapping("/finish-tab")
-    public ResponseEntity<String> closeTab(
-            @RequestParam Long tabId, @RequestParam Long paymentTapId,
+    public ResponseEntity<String> finishTab(
+            @RequestParam Long tabId, @RequestParam Long paymentTypeId,
             HttpServletRequest request
     ) {
-        return ResponseEntity.ok(tabService.closeTab(tabId, paymentTapId, request));
+        return ResponseEntity.ok(tabService.finishTab(tabId, paymentTypeId, request));
     }
 
     @DeleteMapping("/delete-tab")
@@ -57,5 +57,12 @@ public class TabController {
             @PathVariable(name = "tab-id") Long tabId, HttpServletRequest request
     ) {
         return ResponseEntity.ok(tabService.findTabByIdentityIdAndTabId(identityId, tabId, request));
+    }
+
+    @GetMapping("/{tab-id}")
+    public ResponseEntity<TabResponse> getTabById(
+            @PathVariable(name = "tab-id") Long tabId, HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(tabService.findById(tabId, request));
     }
 }

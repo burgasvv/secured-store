@@ -73,4 +73,11 @@ public class IdentityController {
     ) {
         return ResponseEntity.ok(identityService.findIdentityByTabId(tabId, request));
     }
+
+    @GetMapping("/purchase/{purchase-id}")
+    public ResponseEntity<IdentityResponse> getIdentityByPurchaseId(
+            @PathVariable(name = "purchase-id") Long purchaseId, HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(identityService.findIdentityByPurchaseId(purchaseId, request));
+    }
 }

@@ -39,7 +39,7 @@ public class TabService {
             propagation = REQUIRED,
             rollbackFor = RuntimeException.class
     )
-    public String closeTab(Long tabId, Long paymentTypeId, HttpServletRequest request) {
+    public String finishTab(Long tabId, Long paymentTypeId, HttpServletRequest request) {
 
         if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
             Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
@@ -113,7 +113,7 @@ public class TabService {
                 return "Заказ 'Unauthorized' был успешно оформлен и закрыт";
             }
         }
-        throw new TabNotFoundException("Заказ не ьыл найден");
+        throw new TabNotFoundException("Заказ не был найден");
     }
 
     @Transactional(
@@ -148,5 +148,13 @@ public class TabService {
             throw new IdentityNotAuthorizedException(
                 "Пользователь не авторизован для удаления не завершенного заказа"
         );
+    }
+
+    public TabResponse findById(Long tabId, HttpServletRequest request) {
+        return tabRepository.findById(tabId)
+                .map(
+                        tab -> tabMapper.toTabResponse(tab, request)
+                )
+                .orElseGet(TabResponse::new);
     }
 }

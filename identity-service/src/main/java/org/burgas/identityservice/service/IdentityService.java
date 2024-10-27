@@ -115,6 +115,14 @@ public class IdentityService {
                 .orElseGet(IdentityResponse::new);
     }
 
+    public IdentityResponse findIdentityByPurchaseId(Long purchaseId, HttpServletRequest request) {
+        return identityRepository.findIdentityByPurchaseId(purchaseId)
+                .map(
+                        identity -> identityMapper.toIdentityResponse(identity, request)
+                )
+                .orElseGet(IdentityResponse::new);
+    }
+
     public IdentityResponse findById(Long identityId, HttpServletRequest request) {
         return identityRepository.findById(identityId)
                 .map(

@@ -29,13 +29,11 @@ public class PurchaseMapper {
     public PurchaseResponse toPurchaseResponse(Purchase purchase, HttpServletRequest request) {
         return PurchaseResponse.builder()
                 .id(purchase.getId())
+                .identityId(purchase.getIdentityId())
                 .amount(purchase.getAmount())
                 .purchaseDateTime(purchase.getPurchaseDateTime())
                 .productResponse(
                         restTemplateHandler.getProductByProductId(purchase.getProductId(), request).getBody()
-                )
-                .identityResponse(
-                        restTemplateHandler.getIdentityByIdentityId(purchase.getIdentityId(), request).getBody()
                 )
                 .build();
     }

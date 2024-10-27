@@ -29,4 +29,12 @@ public interface IdentityRepository extends JpaRepository<Identity, Long> {
                     """
     )
     Optional<Identity> findIdentityByTabId(Long tabId);
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    select i.* from identity i join purchase p on i.id = p.identity_id where p.id = ?1
+                    """
+    )
+    Optional<Identity> findIdentityByPurchaseId(Long purchaseId);
 }

@@ -58,6 +58,12 @@ public class ProxyConfig {
                                 .path("/payments/**", "/payment-types/**")
                                 .uri("lb:http://payment-service")
                 )
+                .route(
+                        "notifications",
+                        predicateSpec -> predicateSpec
+                                .path("/topics/**")
+                                .uri("lb:http://notification-server")
+                )
                 .build();
     }
 }
