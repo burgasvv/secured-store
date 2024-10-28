@@ -46,11 +46,11 @@ public class SecurityConfig {
                                 )
                                 .permitAll()
                                 .pathMatchers(
-                                        "/payment-types/**" ,"/payments/**", "/topics/**",
-                                        "/employees/**", "/identities/**", "/positions/**", "/stores/**",
+                                        "/payment-types/**" ,"/payments/**", "/employees/**",
+                                        "/identities/**", "/positions/**", "/stores/**",
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )
-                                .hasAnyAuthority("USER", "ADMIN")
+                                .hasAnyAuthority("ADMIN")
                 )
                 .addFilterAfter(unauthorizedCookieFilter(), SecurityWebFiltersOrder.FIRST)
                 .formLogin(Customizer.withDefaults())

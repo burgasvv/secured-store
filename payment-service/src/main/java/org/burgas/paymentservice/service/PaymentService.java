@@ -15,6 +15,7 @@ import org.burgas.paymentservice.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
@@ -62,5 +63,24 @@ public class PaymentService {
                 throw new IdentityNotMatchException("Попытка совершения несанкционированной оплаты");
         }
         throw new IdentityNotAuthorizedException("Пользователь не авторизован для совершения оплаты");
+    }
+
+    public List<PaymentResponse> findPaymentsByIdentityId(Long identityId, HttpServletRequest request) {
+        return paymentRepository.findPaymentsByIdentityId(identityId)
+                .stream().map(
+                        payment -> paymentMapper.toPaymentResponse(payment, request)
+                )
+                .toList();
+    }
+
+    public PaymentResponse findPaymentByIdentityIdAndPaymentId(
+            Long identityId, Long paymentId, HttpServletRequest request
+    ) {
+        return paymentRepository.findPaymentByIdentityIdAndPaymentId(identityId, paymentId)
+                .map(
+                        payment -> paymentMapper.toPaymentResponse(payment, request)
+                )
+                .orElseGet(PaymentResponse::new);
+
     }
 }

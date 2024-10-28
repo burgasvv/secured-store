@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/identity-service/src/main/java/org/burgas/identityservice/repository/IdentityRepository.java" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/order-service/src/main/java/org/burgas/orderservice/repository/PurchaseRepository.java" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/payment-service/src/main/java/org/burgas/paymentservice/repository/PaymentRepository.java" dialect="PostgreSQL" />
   </component>
 </project>
