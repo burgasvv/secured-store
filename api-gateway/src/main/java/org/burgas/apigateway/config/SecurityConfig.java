@@ -37,8 +37,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(
                         exchanges -> exchanges
-                                .pathMatchers(
-                                        "/auth/is-authenticated","/tabs/tab/unauthorized",
+                                .pathMatchers("/auth/**",
                                         "/purchases/make-unauthorized-account-purchase",
                                         "/tabs/finish-unauthorized-account-tab",
                                         "/stores", "/stores/{store-id}", "/positions", "/positions/{position-id}",
@@ -47,7 +46,7 @@ public class SecurityConfig {
                                 )
                                 .permitAll()
                                 .pathMatchers(
-                                        "/auth/**" ,"/payment-types/**" ,"/payments/**", "/topics/**",
+                                        "/payment-types/**" ,"/payments/**", "/topics/**",
                                         "/employees/**", "/identities/**", "/positions/**", "/stores/**",
                                         "/products/**", "/product-types/**", "/tabs/**", "/purchases/**"
                                 )

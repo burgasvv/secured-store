@@ -21,7 +21,7 @@ public class CustomJavaMailSender {
                 "Квитанция оп оплате пользователя "
                 + paymentMessage.getTabResponse().getIdentityResponse().getUsername()
         );
-        mimeMessageHelper.setFrom("From store");
+        mimeMessageHelper.setFrom("admin");
         mimeMessageHelper.setTo(paymentMessage.getTabResponse().getIdentityResponse().getEmail());
         mimeMessageHelper.setReplyTo("burgassme@gmail.com");
         mimeMessageHelper.setText(paymentMessage.toString());
