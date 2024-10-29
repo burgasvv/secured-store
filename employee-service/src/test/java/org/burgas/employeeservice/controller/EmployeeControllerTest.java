@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,34 +21,37 @@ class EmployeeControllerTest {
     @Test
     void handleGetAllEmployees() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/employees")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            result.getResponse().setCharacterEncoding("UTF-8");
+                            System.out.println(result.getResponse().getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
     void handleGetEmployee() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/employees/3")
                                 .contentType(MediaType.APPLICATION_JSON)
 
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -65,18 +69,20 @@ class EmployeeControllerTest {
                   "storeId": "3"
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.post("/employees/create")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -94,18 +100,20 @@ class EmployeeControllerTest {
                   "storeId": "2"
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.put("/employees/edit")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -116,11 +124,13 @@ class EmployeeControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 }

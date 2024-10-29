@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -20,33 +20,37 @@ class PositionControllerTest {
     @Test
     void handleGetAllPosition() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/positions")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
     void handleGetPositionById() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/positions/3")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -59,18 +63,20 @@ class PositionControllerTest {
                   "name": "Главный продавец-консультант"
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.post("/positions/create")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -83,33 +89,37 @@ class PositionControllerTest {
                   "name": "Продавец-консультант"
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.put("/positions/edit")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
     void handleDeletePosition() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.delete("/positions/delete/1")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 }

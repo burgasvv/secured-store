@@ -2,7 +2,6 @@ package org.burgas.apigateway.config;
 
 import lombok.RequiredArgsConstructor;
 import org.burgas.apigateway.service.CustomUserDetailsService;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpCookie;
@@ -79,11 +78,6 @@ public class SecurityConfig {
                 new UserDetailsRepositoryReactiveAuthenticationManager(customUserDetailsService);
         manager.setPasswordEncoder(passwordEncoder());
         return manager;
-    }
-
-    @Bean
-    public HttpMessageConverters httpMessageConverters() {
-        return new HttpMessageConverters();
     }
 
     @Bean

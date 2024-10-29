@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -20,33 +20,37 @@ class ProductControllerTest {
     @Test
     void handleGetAllProducts() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/products")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
     void handleGetProductById() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.get("/products/3")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -80,18 +84,20 @@ class ProductControllerTest {
                   ]
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.post("/products/create")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
@@ -125,33 +131,37 @@ class ProductControllerTest {
                   ]
                 }""";
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.put("/products/edit")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 
     @Test
     void handleDeleteProduct() throws Exception {
 
-        MvcResult mvcResult = mockMvc.perform(
+        mockMvc.perform(
                         MockMvcRequestBuilders.delete("/products/delete/3")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        result -> {
+                            MockHttpServletResponse response = result.getResponse();
+                            response.setCharacterEncoding("UTF-8");
+                            System.out.println(response.getContentAsString());
+                        }
+                )
                 .andReturn();
-
-        mvcResult.getResponse().setCharacterEncoding("UTF-8");
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-
-        System.out.println(contentAsString);
     }
 }
