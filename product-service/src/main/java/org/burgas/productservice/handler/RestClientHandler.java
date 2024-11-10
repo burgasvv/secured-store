@@ -22,7 +22,8 @@ public class RestClientHandler {
             name = "getStoresWithProductsByProductId",
             fallbackMethod = "fallBackGetStoreWithProductsByProductId"
     )
-    public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(Long productId, HttpServletRequest request) {
+    public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(
+            Long productId, @SuppressWarnings("unused") HttpServletRequest request) {
         return restClient.get()
                 .uri("http://localhost:9010/stores/stores-with-product/" + productId)
                 .retrieve()
