@@ -5,25 +5,23 @@ import lombok.RequiredArgsConstructor;
 import org.burgas.apigateway.dto.IdentityResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.URI;
+import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
-public class RestTemplateHandler {
+public class RestClientHandler {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
     @CircuitBreaker(
             name = "getIdentityByUsername",
             fallbackMethod = "fallBackGetIdentityByUsername"
     )
     public ResponseEntity<IdentityResponse> getIdentityByUsername(String username) {
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8888/identities/" + username),
-                IdentityResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8888/identities/{username}", username)
+                .retrieve()
+                .toEntity(IdentityResponse.class);
     }
 
     @SuppressWarnings("unused")

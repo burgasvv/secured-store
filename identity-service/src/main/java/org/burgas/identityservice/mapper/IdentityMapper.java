@@ -8,7 +8,7 @@ import org.burgas.identityservice.dto.IdentityResponse;
 import org.burgas.identityservice.entity.Authority;
 import org.burgas.identityservice.entity.Identity;
 import org.burgas.identityservice.exception.IdentityNotFoundException;
-import org.burgas.identityservice.handler.RestTemplateHandler;
+import org.burgas.identityservice.handler.RestClientHandler;
 import org.burgas.identityservice.repository.AuthorityRepository;
 import org.burgas.identityservice.repository.IdentityRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,7 @@ public class IdentityMapper {
     private final AuthorityMapper authorityMapper;
     private final IdentityRepository identityRepository;
     private final AuthorityRepository authorityRepository;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public Identity toIdentity(IdentityRequest identityRequest) {
         return Identity.builder()
@@ -64,7 +64,7 @@ public class IdentityMapper {
         return IdentityResponse.builder()
                 .id(identity.getId())
                 .employeeResponse(
-                        restTemplateHandler.getEmployeeByIdentityId(identity.getId(), request).getBody()
+                        restClientHandler.getEmployeeByIdentityId(identity.getId(), request).getBody()
                 )
                 .username(identity.getUsername())
                 .email(identity.getEmail())

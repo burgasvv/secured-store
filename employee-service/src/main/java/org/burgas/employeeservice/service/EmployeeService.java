@@ -8,7 +8,7 @@ import org.burgas.employeeservice.entity.Employee;
 import org.burgas.employeeservice.exception.EmployeeNotFoundException;
 import org.burgas.employeeservice.exception.IdentityNotAuthenticatedException;
 import org.burgas.employeeservice.exception.WrongIdentityException;
-import org.burgas.employeeservice.handler.RestTemplateHandler;
+import org.burgas.employeeservice.handler.RestClientHandler;
 import org.burgas.employeeservice.mapper.EmployeeMapper;
 import org.burgas.employeeservice.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public List<EmployeeResponse> findAll(HttpServletRequest request) {
         return employeeRepository.findAll()
@@ -61,8 +61,8 @@ public class EmployeeService {
     )
     public EmployeeResponse createOrUpdate(EmployeeRequest employeeRequest, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
 
             if (Objects.equals(employeeRequest.getIdentityId(), authenticatedIdentityId)) {
                 return employeeMapper.toEmployeeResponse(
@@ -84,8 +84,8 @@ public class EmployeeService {
     )
     public String deleteById(Long employeeId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
 
             Employee employee = employeeRepository.findEmployeeByIdentityId(authenticatedIdentityId)
                     .orElseThrow(

@@ -10,7 +10,7 @@ import org.burgas.orderservice.dto.StoreResponse;
 import org.burgas.orderservice.entity.Purchase;
 import org.burgas.orderservice.entity.Tab;
 import org.burgas.orderservice.exception.*;
-import org.burgas.orderservice.handler.RestTemplateHandler;
+import org.burgas.orderservice.handler.RestClientHandler;
 import org.burgas.orderservice.mapper.PurchaseMapper;
 import org.burgas.orderservice.mapper.TabMapper;
 import org.burgas.orderservice.repository.PurchaseRepository;
@@ -33,7 +33,7 @@ public class PurchaseService {
     private final TabRepository tabRepository;
     private final PurchaseMapper purchaseMapper;
     private final TabMapper tabMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
 
     @Transactional(
@@ -46,7 +46,7 @@ public class PurchaseService {
             HttpServletRequest request, HttpServletResponse response
     ) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.FALSE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie == null) {
                 unauthorizedCookie = new Cookie("unauthorized-cookie", UUID.randomUUID().toString());
@@ -55,7 +55,7 @@ public class PurchaseService {
                 response.addCookie(unauthorizedCookie);
             }
 
-            ProductResponse productResponse = restTemplateHandler.
+            ProductResponse productResponse = restClientHandler.
                     getProductByProductId(purchaseRequest.getProductId(), request).getBody();
 
             if (productResponse != null && productResponse.getAmount() <= 0) {
@@ -104,11 +104,11 @@ public class PurchaseService {
     )
     public String makePurchase(PurchaseRequest purchaseRequest, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authorizedCredentialId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authorizedCredentialId = restClientHandler.getAuthenticationCredentialId(request).getBody();
 
             if (Objects.equals(authorizedCredentialId, purchaseRequest.getIdentityId())) {
-                ProductResponse productResponse = restTemplateHandler.
+                ProductResponse productResponse = restClientHandler.
                         getProductByProductId(purchaseRequest.getProductId(), request).getBody();
 
                 if (productResponse != null && productResponse.getAmount() <= 0) {
@@ -135,8 +135,8 @@ public class PurchaseService {
     )
     public String deletePurchase(Long purchaseId, Long tabId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authorizedCredentialId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authorizedCredentialId = restClientHandler.getAuthenticationCredentialId(request).getBody();
             Tab tab = tabRepository.findById(tabId).orElse(null);
 
             if (Objects.equals(Objects.requireNonNull(tab).getIdentityId(), authorizedCredentialId)) {
@@ -158,7 +158,7 @@ public class PurchaseService {
     )
     public String deleteUnauthorizedAccountPurchase(Cookie unauthorizedCookie, Long purchaseId, HttpServletRequest request) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.FALSE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie != null) {
                 Tab tab = tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
@@ -181,7 +181,7 @@ public class PurchaseService {
             Purchase purchase = purchaseRepository.findById(purchaseId).orElse(null);
 
             if (purchase != null) {
-                ProductResponse productResponse = restTemplateHandler.
+                ProductResponse productResponse = restClientHandler.
                         getProductByProductId(purchase.getProductId(), request).getBody();
 
                 if (productResponse != null) {
@@ -207,8 +207,8 @@ public class PurchaseService {
     )
     public String incrementPurchaseProductAmount(Long purchaseId, Long productId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
             Purchase purchase = purchaseRepository.findPurchasesByIdAndProductId(purchaseId, productId)
                     .orElseThrow(
                             () -> new PurchaseNotFoundException("Искомая покупка не найдена")
@@ -218,7 +218,7 @@ public class PurchaseService {
                 throw new IdentityNotMatchException("Попытка изменения покупки из чужого заказа");
 
             if (Objects.equals(authenticatedIdentityId, purchase.getIdentityId())) {
-                StoreResponse storeResponse = restTemplateHandler
+                StoreResponse storeResponse = restClientHandler
                         .getStoreByStoreId(tab.getStoreId(), request).getBody();
                 Integer productAmountInStore = purchaseRepository
                         .findProductAmountByStoreIdAndProductId(
@@ -247,8 +247,8 @@ public class PurchaseService {
     )
     public String decrementPurchaseProductAmount(Long purchaseId, Long productId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
             Purchase purchase = purchaseRepository.findPurchasesByIdAndProductId(purchaseId, productId)
                     .orElseThrow(
                             () -> new PurchaseNotFoundException("Искомая покупка не найдена")

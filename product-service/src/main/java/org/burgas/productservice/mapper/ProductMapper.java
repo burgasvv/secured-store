@@ -8,7 +8,7 @@ import org.burgas.productservice.dto.StoreResponse;
 import org.burgas.productservice.entity.Product;
 import org.burgas.productservice.entity.ProductStore;
 import org.burgas.productservice.entity.ProductType;
-import org.burgas.productservice.handler.RestTemplateHandler;
+import org.burgas.productservice.handler.RestClientHandler;
 import org.burgas.productservice.repository.ProductStoreRepository;
 import org.burgas.productservice.repository.ProductTypeRepository;
 import org.springframework.stereotype.Service;
@@ -23,11 +23,11 @@ public class ProductMapper {
     private final ProductStoreRepository productStoreRepository;
     private final ProductTypeRepository productTypeRepository;
     private final ProductTypeMapper productTypeMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public ProductResponse toProductResponse(Product product, HttpServletRequest request) {
 
-        List<StoreResponse> storeResponses = restTemplateHandler
+        List<StoreResponse> storeResponses = restClientHandler
                 .getStoresWithProductsByProductId(product.getId(), request).getBody();
 
         List<ProductStore> productStores = productStoreRepository

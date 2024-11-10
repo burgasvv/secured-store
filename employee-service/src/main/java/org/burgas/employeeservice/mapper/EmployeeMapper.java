@@ -6,7 +6,7 @@ import org.burgas.employeeservice.dto.EmployeeRequest;
 import org.burgas.employeeservice.dto.EmployeeResponse;
 import org.burgas.employeeservice.entity.Employee;
 import org.burgas.employeeservice.entity.Position;
-import org.burgas.employeeservice.handler.RestTemplateHandler;
+import org.burgas.employeeservice.handler.RestClientHandler;
 import org.burgas.employeeservice.repository.PositionRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class EmployeeMapper {
 
     private final PositionRepository positionRepository;
     private final PositionMapper positionMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public EmployeeResponse toEmployeeResponse(Employee employee, HttpServletRequest request) {
 
@@ -34,7 +34,7 @@ public class EmployeeMapper {
                         )
                 )
                 .storeResponse(
-                        restTemplateHandler.getStoreById(employee.getStoreId(), request).getBody()
+                        restClientHandler.getStoreById(employee.getStoreId(), request).getBody()
                 )
                 .build();
     }

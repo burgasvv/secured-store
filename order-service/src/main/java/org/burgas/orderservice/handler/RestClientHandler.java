@@ -7,32 +7,28 @@ import org.burgas.orderservice.dto.IdentityResponse;
 import org.burgas.orderservice.dto.PaymentTypeResponse;
 import org.burgas.orderservice.dto.ProductResponse;
 import org.burgas.orderservice.dto.StoreResponse;
-import org.burgas.orderservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
-import java.net.URI;
-import java.util.List;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 @RequiredArgsConstructor
-public class RestTemplateHandler {
+public class RestClientHandler {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
     @CircuitBreaker(
             name = "getIdentityByTabId",
             fallbackMethod = "fallBackGetIdentityByTabId"
     )
     public ResponseEntity<IdentityResponse> getIdentityByTabId(Long tabId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8888/identities/tab/" + tabId),
-                IdentityResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8888/identities/tab/{tab-id}", tabId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(IdentityResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -46,13 +42,11 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackGetIdentityByPurchaseId"
     )
     public ResponseEntity<IdentityResponse> getIdentityByPurchaseId(Long purchaseId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8888/identities/purchase/{purchase-id}"),
-                IdentityResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8888/identities/purchase/{purchase-id}", purchaseId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(IdentityResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -65,13 +59,11 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackGetProductByProductId"
     )
     public ResponseEntity<ProductResponse> getProductByProductId(Long productId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:9020/products/" + productId),
-                ProductResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:9020/products/{product-id}", productId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(ProductResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -85,13 +77,11 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackGetIdentityByIdentityId"
     )
     public ResponseEntity<IdentityResponse> getIdentityByIdentityId(Long identityId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8888/identities/identity/" + identityId),
-                IdentityResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8888/identities/identity/{identity-id}", identityId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(IdentityResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -104,13 +94,11 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackGetStoreByStoreId"
     )
     public ResponseEntity<StoreResponse> getStoreByStoreId(Long storeId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:9010/stores/" + storeId),
-                StoreResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:9010/stores/{store-id}", storeId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(StoreResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -125,13 +113,11 @@ public class RestTemplateHandler {
     public ResponseEntity<PaymentTypeResponse> getPaymentTypeResponse(
             Long paymentTypeId, HttpServletRequest request
     ) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:9040/payment-types/" + paymentTypeId),
-                PaymentTypeResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:9040/payment-types/" + paymentTypeId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(PaymentTypeResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -144,13 +130,10 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackIsAuthenticated"
     )
     public ResponseEntity<Boolean> isAuthenticated(HttpServletRequest httpServletRequest) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(httpServletRequest))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8765/auth/is-authenticated"),
-                Boolean.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8765/auth/is-authenticated")
+                .retrieve()
+                .toEntity(Boolean.class);
     }
 
     @SuppressWarnings("unused")
@@ -163,13 +146,10 @@ public class RestTemplateHandler {
             fallbackMethod = "falBackGetAuthenticationCredentialId"
     )
     public ResponseEntity<Long> getAuthenticationCredentialId(HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8765/auth/authentication-data"),
-                Long.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8765/auth/authentication-data")
+                .retrieve()
+                .toEntity(Long.class);
     }
 
     @SuppressWarnings("unused")

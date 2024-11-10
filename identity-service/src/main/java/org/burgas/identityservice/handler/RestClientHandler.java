@@ -4,35 +4,28 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.identityservice.dto.EmployeeResponse;
-import org.burgas.identityservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
-import java.net.URI;
-import java.util.List;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 @RequiredArgsConstructor
-public class RestTemplateHandler {
+public class RestClientHandler {
 
-    private final RestTemplate restTemplate;
-
+    private final RestClient restClient;
 
     @CircuitBreaker(
             name = "getEmployeeByIdentityId",
             fallbackMethod = "fallBackGetEmployeeByIdentityId"
     )
     public ResponseEntity<EmployeeResponse> getEmployeeByIdentityId(Long identityId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:9000/employees/identity/" + identityId),
-                EmployeeResponse.class
-        );
+        return restClient.get()
+                .uri("http://localhost:9000/employees/identity/{identity-id}", identityId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(EmployeeResponse.class);
     }
 
     @SuppressWarnings("unused")
@@ -45,13 +38,11 @@ public class RestTemplateHandler {
             fallbackMethod = "fallBackIsAuthenticated"
     )
     public ResponseEntity<Boolean> isAuthenticated(HttpServletRequest httpServletRequest) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(httpServletRequest))
-        );
-        return restTemplate.getForEntity(
-                URI.create("http://localhost:8765/auth/is-authenticated"),
-                Boolean.class
-        );
+        return restClient.get()
+                .uri("http://localhost:8765/auth/is-authenticated")
+                .header(AUTHORIZATION, httpServletRequest.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(Boolean.class);
     }
 
     @SuppressWarnings("unused")
@@ -64,13 +55,11 @@ public class RestTemplateHandler {
             fallbackMethod = "falBackGetAuthenticationCredentialId"
     )
     public ResponseEntity<Long> getAuthenticationCredentialId(HttpServletRequest httpServletRequest) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(httpServletRequest))
-        );
-        return restTemplate.exchange(
-                URI.create("http://localhost:8765/auth/authentication-data"),
-                HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
-        );
+        return restClient.get()
+                .uri("http://localhost:8765/auth/authentication-data")
+                .header(AUTHORIZATION, httpServletRequest.getHeader(AUTHORIZATION))
+                .retrieve()
+                .toEntity(Long.class);
     }
 
     @SuppressWarnings("unused")

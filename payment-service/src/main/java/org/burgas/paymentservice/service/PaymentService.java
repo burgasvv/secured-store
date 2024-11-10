@@ -9,7 +9,7 @@ import org.burgas.paymentservice.entity.Payment;
 import org.burgas.paymentservice.exception.IdentityNotAuthorizedException;
 import org.burgas.paymentservice.exception.IdentityNotMatchException;
 import org.burgas.paymentservice.exception.TabNotFoundException;
-import org.burgas.paymentservice.handler.RestTemplateHandler;
+import org.burgas.paymentservice.handler.RestClientHandler;
 import org.burgas.paymentservice.mapper.PaymentMapper;
 import org.burgas.paymentservice.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     @Transactional(
             isolation = SERIALIZABLE,
@@ -36,12 +36,12 @@ public class PaymentService {
             rollbackFor = RuntimeException.class
     )
     public String makePayment(Long identityId, Long tabId, HttpServletRequest request) {
-        IdentityPrincipal principal = restTemplateHandler.getPrincipal(request).getBody();
+        IdentityPrincipal principal = restClientHandler.getPrincipal(request).getBody();
 
         if (Objects.requireNonNull(principal).getIsAuthenticated()) {
 
             if (Objects.equals(identityId, principal.getId())) {
-                TabResponse tabResponse = restTemplateHandler
+                TabResponse tabResponse = restClientHandler
                         .getTabByIdentityIdAndTabId(identityId, tabId, request).getBody();
 
                 if (tabResponse != null) {
@@ -51,7 +51,7 @@ public class PaymentService {
                             ),
                             request
                     );
-                    return restTemplateHandler.sendEmailPaymentMessage(
+                    return restClientHandler.sendEmailPaymentMessage(
                             paymentMapper.toPaymentMessage(paymentResponse),
                             request
                     ).getBody();

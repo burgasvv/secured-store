@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.PurchaseRequest;
 import org.burgas.orderservice.dto.PurchaseResponse;
 import org.burgas.orderservice.entity.Purchase;
-import org.burgas.orderservice.handler.RestTemplateHandler;
+import org.burgas.orderservice.handler.RestClientHandler;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PurchaseMapper {
 
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public Purchase toPurchase(PurchaseRequest purchaseRequest) {
         return Purchase.builder()
@@ -33,7 +33,7 @@ public class PurchaseMapper {
                 .amount(purchase.getAmount())
                 .purchaseDateTime(purchase.getPurchaseDateTime())
                 .productResponse(
-                        restTemplateHandler.getProductByProductId(purchase.getProductId(), request).getBody()
+                        restClientHandler.getProductByProductId(purchase.getProductId(), request).getBody()
                 )
                 .build();
     }

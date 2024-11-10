@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.burgas.orderservice.dto.PurchaseRequest;
 import org.burgas.orderservice.dto.TabResponse;
 import org.burgas.orderservice.entity.Tab;
-import org.burgas.orderservice.handler.RestTemplateHandler;
+import org.burgas.orderservice.handler.RestClientHandler;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class TabMapper {
 
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
     private final PurchaseMapper purchaseMapper;
 
     public Tab toNewTab(PurchaseRequest purchaseRequest) {
@@ -51,13 +51,13 @@ public class TabMapper {
                 .totalPrice(tab.getTotalPrice())
                 .unauthorizedCookieValue(tab.getUnauthorizedCookieValue())
                 .paymentTypeResponse(
-                        restTemplateHandler.getPaymentTypeResponse(tab.getPaymentTypeId(), request).getBody()
+                        restClientHandler.getPaymentTypeResponse(tab.getPaymentTypeId(), request).getBody()
                 )
                 .identityResponse(
-                        restTemplateHandler.getIdentityByTabId(tab.getId(), request).getBody()
+                        restClientHandler.getIdentityByTabId(tab.getId(), request).getBody()
                 )
                 .storeResponse(
-                        restTemplateHandler.getStoreByStoreId(tab.getStoreId(), request).getBody()
+                        restClientHandler.getStoreByStoreId(tab.getStoreId(), request).getBody()
                 )
                 .purchaseResponses(
                         tab.getPurchases()

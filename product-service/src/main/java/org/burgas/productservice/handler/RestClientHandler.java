@@ -4,35 +4,29 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.burgas.productservice.dto.StoreResponse;
-import org.burgas.productservice.interceptor.AuthorizationRestTemplateHttpRequestInterceptor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class RestTemplateHandler {
+public class RestClientHandler {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
     @CircuitBreaker(
             name = "getStoresWithProductsByProductId",
             fallbackMethod = "fallBackGetStoreWithProductsByProductId"
     )
     public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(Long productId, HttpServletRequest request) {
-        restTemplate.setInterceptors(
-                List.of(new AuthorizationRestTemplateHttpRequestInterceptor(request))
-        );
-        return restTemplate.exchange(
-                URI.create("http://localhost:9010/stores/stores-with-product/" + productId),
-                HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
-        );
+        return restClient.get()
+                .uri("http://localhost:9010/stores/stores-with-product/" + productId)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {});
     }
 
     @SuppressWarnings("unused")

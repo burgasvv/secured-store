@@ -2,11 +2,10 @@ package org.burgas.apigateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -18,12 +17,7 @@ public class ApiGatewayApplication {
     }
 
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
-    @Bean
-    public WebProperties.Resources resources() {
-        return new WebProperties.Resources();
+    public RestClient restClient() {
+        return RestClient.builder().build();
     }
 }

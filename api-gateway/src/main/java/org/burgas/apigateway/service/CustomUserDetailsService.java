@@ -1,7 +1,7 @@
 package org.burgas.apigateway.service;
 
 import lombok.RequiredArgsConstructor;
-import org.burgas.apigateway.handler.RestTemplateHandler;
+import org.burgas.apigateway.handler.RestClientHandler;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -11,13 +11,13 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements ReactiveUserDetailsService {
 
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     @Override
     public Mono<UserDetails> findByUsername(String username) {
         return Mono.create(
                 userDetailsMonoSink -> userDetailsMonoSink.success(
-                        restTemplateHandler.getIdentityByUsername(username).getBody()
+                        restClientHandler.getIdentityByUsername(username).getBody()
                 )
         );
     }

@@ -9,7 +9,7 @@ import org.burgas.orderservice.entity.Tab;
 import org.burgas.orderservice.exception.IdentityNotAuthorizedException;
 import org.burgas.orderservice.exception.IdentityNotMatchException;
 import org.burgas.orderservice.exception.TabNotFoundException;
-import org.burgas.orderservice.handler.RestTemplateHandler;
+import org.burgas.orderservice.handler.RestClientHandler;
 import org.burgas.orderservice.mapper.TabMapper;
 import org.burgas.orderservice.repository.PurchaseRepository;
 import org.burgas.orderservice.repository.TabRepository;
@@ -30,7 +30,7 @@ public class TabService {
 
     private final TabRepository tabRepository;
     private final TabMapper tabMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
     private final PurchaseService purchaseService;
     private final PurchaseRepository purchaseRepository;
 
@@ -41,8 +41,8 @@ public class TabService {
     )
     public String finishTab(Long tabId, Long paymentTypeId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
             Tab tab = tabRepository.findById(tabId).orElseThrow(
                     () -> new TabNotFoundException("Заказ с идентификатором " + tabId + " не найден")
             );
@@ -82,7 +82,7 @@ public class TabService {
 
     public TabResponse findUnauthorizedAccountTab(Cookie unauthorizedCookie, HttpServletRequest request) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.FALSE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie != null) {
                 return tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
@@ -100,7 +100,7 @@ public class TabService {
     )
     public String closeUnauthorizedAccountTab(Cookie unauthorizedCookie, HttpServletRequest request) {
 
-        if (Boolean.FALSE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.FALSE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
             if (unauthorizedCookie != null) {
                 Tab tab = tabRepository.findTabByUnauthorizedCookieValue(unauthorizedCookie.getValue())
@@ -123,8 +123,8 @@ public class TabService {
     )
     public String deleteTabByIdIfNotFinished(Long tabId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
             Tab tab = tabRepository.findById(tabId).orElseGet(Tab::new);
 
             if (Objects.equals(authenticatedIdentityId, tab.getIdentityId())) {

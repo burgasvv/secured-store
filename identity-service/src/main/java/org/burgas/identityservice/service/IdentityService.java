@@ -7,7 +7,7 @@ import org.burgas.identityservice.dto.IdentityRequestEdit;
 import org.burgas.identityservice.dto.IdentityResponse;
 import org.burgas.identityservice.exception.IdentityNotAuthenticatedException;
 import org.burgas.identityservice.exception.WrongIdentityException;
-import org.burgas.identityservice.handler.RestTemplateHandler;
+import org.burgas.identityservice.handler.RestClientHandler;
 import org.burgas.identityservice.mapper.IdentityMapper;
 import org.burgas.identityservice.repository.IdentityRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class IdentityService {
 
     private final IdentityRepository identityRepository;
     private final IdentityMapper identityMapper;
-    private final RestTemplateHandler restTemplateHandler;
+    private final RestClientHandler restClientHandler;
 
     public List<IdentityResponse> findAll(HttpServletRequest request) {
         return identityRepository.findAll()
@@ -68,9 +68,9 @@ public class IdentityService {
     )
     public IdentityResponse update(IdentityRequestEdit identityRequestEdit, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
 
             if (Objects.equals(authenticatedIdentityId, identityRequestEdit.getId())) {
                 return identityMapper.toIdentityResponse(
@@ -92,9 +92,9 @@ public class IdentityService {
     )
     public String delete(Long identityId, HttpServletRequest request) {
 
-        if (Boolean.TRUE.equals(restTemplateHandler.isAuthenticated(request).getBody())) {
+        if (Boolean.TRUE.equals(restClientHandler.isAuthenticated(request).getBody())) {
 
-            Long authenticatedIdentityId = restTemplateHandler.getAuthenticationCredentialId(request).getBody();
+            Long authenticatedIdentityId = restClientHandler.getAuthenticationCredentialId(request).getBody();
 
             if (Objects.equals(authenticatedIdentityId, identityId)) {
                 identityRepository.updateEmployeeByIdentityIdSetNull(identityId);
