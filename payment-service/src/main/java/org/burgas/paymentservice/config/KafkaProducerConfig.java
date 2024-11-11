@@ -16,18 +16,21 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, PaymentMessage> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(
-                Map.of(
-                        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092",
-                        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
-                )
+    public Map<String, Object> producerConfig() {
+        return Map.of(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092",
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
         );
     }
 
     @Bean
+    public ProducerFactory<String, PaymentMessage> paymentMessageProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean
     public KafkaTemplate<String, PaymentMessage> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        return new KafkaTemplate<>(paymentMessageProducerFactory());
     }
 }
