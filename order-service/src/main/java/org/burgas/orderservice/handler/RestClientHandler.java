@@ -129,9 +129,10 @@ public class RestClientHandler {
             name = "isAuthenticated",
             fallbackMethod = "fallBackIsAuthenticated"
     )
-    public ResponseEntity<Boolean> isAuthenticated(@SuppressWarnings("unused") HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Boolean> isAuthenticated(HttpServletRequest httpServletRequest) {
         return restClient.get()
                 .uri("http://localhost:8765/auth/is-authenticated")
+                .header(AUTHORIZATION, httpServletRequest.getHeader(AUTHORIZATION))
                 .retrieve()
                 .toEntity(Boolean.class);
     }
@@ -145,9 +146,10 @@ public class RestClientHandler {
             name = "getAuthenticationCredentialId",
             fallbackMethod = "falBackGetAuthenticationCredentialId"
     )
-    public ResponseEntity<Long> getAuthenticationCredentialId(@SuppressWarnings("unused") HttpServletRequest request) {
+    public ResponseEntity<Long> getAuthenticationCredentialId(HttpServletRequest request) {
         return restClient.get()
                 .uri("http://localhost:8765/auth/authentication-data")
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
                 .retrieve()
                 .toEntity(Long.class);
     }

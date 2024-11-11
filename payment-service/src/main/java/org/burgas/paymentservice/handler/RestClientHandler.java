@@ -25,6 +25,7 @@ public class RestClientHandler {
     public ResponseEntity<IdentityPrincipal> getPrincipal(@SuppressWarnings("unused") HttpServletRequest request) {
         return restClient.get()
                 .uri("http://localhost:8765/auth/principal")
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
                 .retrieve()
                 .toEntity(IdentityPrincipal.class);
     }

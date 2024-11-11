@@ -12,6 +12,8 @@ import org.springframework.web.client.RestClient;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @Component
 @RequiredArgsConstructor
 public class RestClientHandler {
@@ -23,9 +25,11 @@ public class RestClientHandler {
             fallbackMethod = "fallBackGetStoreWithProductsByProductId"
     )
     public ResponseEntity<List<StoreResponse>> getStoresWithProductsByProductId(
-            Long productId, @SuppressWarnings("unused") HttpServletRequest request) {
+            Long productId, HttpServletRequest request
+    ) {
         return restClient.get()
                 .uri("http://localhost:9010/stores/stores-with-product/" + productId)
+                .header(AUTHORIZATION, request.getHeader(AUTHORIZATION))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {});
     }

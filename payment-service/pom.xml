@@ -70,6 +70,7 @@
             <artifactId>annotations</artifactId>
             <version>24.0.0</version>
         </dependency>
+        <!--suppress VulnerableLibrariesLocal -->
     </dependencies>
     <dependencyManagement>
         <dependencies>
