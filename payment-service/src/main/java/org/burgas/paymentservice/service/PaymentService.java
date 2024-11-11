@@ -10,6 +10,7 @@ import org.burgas.paymentservice.exception.IdentityNotAuthorizedException;
 import org.burgas.paymentservice.exception.IdentityNotMatchException;
 import org.burgas.paymentservice.exception.TabNotFoundException;
 import org.burgas.paymentservice.handler.RestClientHandler;
+import org.burgas.paymentservice.kafka.KafkaProducer;
 import org.burgas.paymentservice.mapper.PaymentMapper;
 import org.burgas.paymentservice.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final RestClientHandler restClientHandler;
+    private final KafkaProducer kafkaProducer;
 
     @Transactional(
             isolation = SERIALIZABLE,
@@ -51,10 +53,15 @@ public class PaymentService {
                             ),
                             request
                     );
-                    return restClientHandler.sendEmailPaymentMessage(
-                            paymentMapper.toPaymentMessage(paymentResponse),
-                            request
-                    ).getBody();
+//                    return restClientHandler.sendEmailPaymentMessage(
+//                            paymentMapper.toPaymentMessage(paymentResponse),
+//                            request
+//                    ).getBody();
+
+                    kafkaProducer.sendPaymentNotificationMessage(
+                            paymentMapper.toPaymentMessage(paymentResponse)
+                    );
+                    return "Success: Payment message was successfully sent";
 
                 } else
                     throw new TabNotFoundException("Заказ по идентификатору не найден");
