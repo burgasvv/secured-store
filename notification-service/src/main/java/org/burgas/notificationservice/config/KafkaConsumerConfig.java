@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, PaymentMessage> consumerFactory() {
+    public ConsumerFactory<String, PaymentMessage> paymentMessageConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -37,7 +37,7 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> paymentMessageKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(paymentMessageConsumerFactory());
         return factory;
     }
 
